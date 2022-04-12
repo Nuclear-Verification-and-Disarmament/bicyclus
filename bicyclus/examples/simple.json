@@ -1,0 +1,175 @@
+{
+ "simulation": {
+  "archetypes": {
+   "spec": [
+    {"lib": "cycamore", "name": "Enrichment"},
+    {"lib": "cycamore", "name": "Reactor"},
+    {"lib": "cycamore", "name": "Source"},
+    {"lib": "cycamore", "name": "Sink"},
+    {"lib": "cycamore", "name": "FuelFab"},
+    {"lib": "cycamore", "name": "Separations"},
+    {"lib": "agents", "name": "NullRegion"},
+    {"lib": "agents", "name": "NullInst"}
+   ]
+  },
+  "commodity": [
+   {"name": "uore", "solution_priority": "1.0"},
+   {"name": "freshfuel", "solution_priority": "1.0"},
+   {"name": "spentfuel", "solution_priority": "1.0"},
+   {"name": "tails", "solution_priority": "1.0"},
+   {"name": "freshfuel_mox", "solution_priority": "1.0"},
+   {"name": "spentfuel_mox", "solution_priority": "1.0"},
+   {"name": "separated_fissile", "solution_priority": "1.0"},
+   {"name": "separated_waste", "solution_priority": "1.0"}
+  ],
+  "control": {"decay": "lazy", "duration": "720", "startmonth": "1", "startyear": "2010", "explicit_inventory": true},
+  "facility": [
+   {"config": {"Source": {"outcommod": "uore"}}, "name": "UraniumMine"},
+   {
+    "config": {
+     "Enrichment": {
+      "feed_commod": "uore",
+      "feed_recipe": "natu",
+      "max_feed_inventory": "1000000",
+      "product_commod": "freshfuel",
+      "tails_commod": "tails"
+     }
+    },
+    "name": "EnrichmentPlant"
+   },
+   {
+    "config": {
+     "Reactor": {
+      "assem_size": "33000",
+      "cycle_time": "18",
+      "fuel_incommods": {"val": "freshfuel"},
+      "fuel_inrecipes": {"val": "freshfuel"},
+      "fuel_outcommods": {"val": "spentfuel"},
+      "fuel_outrecipes": {"val": "spentfuel"},
+      "n_assem_batch": "1",
+      "n_assem_core": "3",
+      "power_cap": "1178",
+      "refuel_time": "1"
+     }
+    },
+    "name": "1187MW_Braidwood-1"
+   },
+   {
+    "config": {
+     "Reactor": {
+      "assem_size": "30160",
+      "cycle_time": "12",
+      "fuel_incommods": {"val": "freshfuel"},
+      "fuel_inrecipes": {"val": "freshfuel"},
+      "fuel_outcommods": {"val": "spentfuel"},
+      "fuel_outrecipes": {"val": "spentfuel"},
+      "n_assem_batch": "1",
+      "n_assem_core": "3",
+      "power_cap": "1000",
+      "refuel_time": "1"
+     }
+    },
+    "lifetime": "360",
+    "name": "1000We_Lightwater-1"
+   },
+   {
+    "config": {
+     "Separations": {
+      "feed_commod_prefs": {"val": ["1.0", "1.0"]},
+      "feed_commods": {"val": ["spentfuel", "spentfuel_mox"]},
+      "feedbuf_size": "1000e+3",
+      "leftover_commod": "separated_waste",
+      "leftoverbuf_size": "1000e+3",
+      "streams": {
+       "item": {
+        "commod": "separated_fissile",
+        "info": {"buf_size": "5e+3", "efficiencies": {"item": {"comp": "94000", "eff": "0.99"}}}
+       }
+      },
+      "throughput": "80e+3"
+     }
+    },
+    "name": "SeparationsFacility"
+   },
+   {
+    "config": {
+     "FuelFab": {
+      "fill_commods": {"val": "uore"},
+      "fill_recipe": "\n                    natu\n                ",
+      "fill_size": "1000000",
+      "fiss_commods": {"val": "separated_fissile"},
+      "fiss_size": "5000",
+      "outcommod": "freshfuel_mox",
+      "spectrum": "thermal",
+      "throughput": "2000"
+     }
+    },
+    "name": "FuelFab"
+   },
+   {
+    "config": {"Sink": {"in_commods": {"val": ["spentfuel", "tails"]}}},
+    "name": "NuclearRepository"
+   }
+  ],
+  "recipe": [
+   {
+    "basis": "mass",
+    "name": "natu",
+    "nuclide": [{"comp": "0.00711", "id": "92235"}, {"comp": "0.99289", "id": "92238"}]
+   },
+   {
+    "basis": "mass",
+    "name": "freshfuel",
+    "nuclide": [{"comp": "0.04", "id": "92235"}, {"comp": "0.96", "id": "92238"}]
+   },
+   {
+    "basis": "mass",
+    "name": "spentfuel",
+    "nuclide": [
+     {"comp": "0.011", "id": "92235"},
+     {"comp": "0.94", "id": "92238"},
+     {"comp": "0.009", "id": "94239"},
+     {"comp": "0.04", "id": "55137"}
+    ]
+   },
+   {
+    "basis": "mass",
+    "name": "spentfuel_mox",
+    "nuclide": [
+     {"comp": "0.002", "id": "92235"},
+     {"comp": "0.94", "id": "92238"},
+     {"comp": "0.01", "id": "94239"},
+     {"comp": "0.002", "id": "94240"},
+     {"comp": "0.046", "id": "55137"}
+    ]
+   }
+  ],
+  "region": {
+   "config": {"NullRegion": null},
+   "institution": [
+    {
+     "config": {"NullInst": null},
+     "initialfacilitylist": {
+      "entry": [
+       {"number": "1", "prototype": "1187MW_Braidwood-1"},
+       {"number": "1", "prototype": "1000We_Lightwater-1"}
+      ]
+     },
+     "name": "Exelon"
+    },
+    {
+     "config": {"NullInst": null},
+     "initialfacilitylist": {
+      "entry": [
+       {"number": "1", "prototype": "UraniumMine"},
+       {"number": "1", "prototype": "EnrichmentPlant"},
+       {"number": "1", "prototype": "NuclearRepository"}
+      ]
+     },
+     "name": "U.S. Nuclear"
+    }
+   ],
+   "name": "USA"
+  }
+ }
+}
