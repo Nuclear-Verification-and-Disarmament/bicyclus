@@ -8,7 +8,7 @@ import tempfile
 import cyclus.simstate as cycsim
 import cyclus.memback as cycmb
 
-from util import log
+from ..util import log
 
 
 class CyclusCliModel:

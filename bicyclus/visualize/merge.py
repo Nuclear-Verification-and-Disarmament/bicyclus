@@ -14,7 +14,7 @@ import numpy as np
 import pymc3 as pm
 import seaborn as sb
 
-from util import log
+from ..util import log
 
 
 def merge_samples(files, dim):

@@ -24,10 +24,7 @@ Bayesian statistics using Markov chain Monte Carlo algortihms.
   distributions.
 
 ## How-to
-### Installation and requirements
-Bicyclus cannot *yet* be installed as Python module.
-This will be changed soon.
-
+### Requirements
 Bicyclus has only been tested using cherry-picked versions of `PyMC3` and
 `Arviz`, with certain patches applied.
 Using standard PyMC and Arviz versions may lead to errors or unexpected
@@ -45,6 +42,22 @@ The following table lists the software requirements.
 | [matplotlib](https://matplotlib.org/)| n/a | no specific version |
 | [Cyclus' Python API](https://fuelcycle.org/) | [`b45efc6`](https://github.com/maxschalz/cyclus/tree/b45efc6d988c5d30895b320ded235222ce5a2053) | may become superfluous in future versions |
 
+### Installation
+~~Bicyclus cannot *yet* be installed as Python module.
+This will be changed soon.~~
+Bicyclus should be installable but no extensive tests have been done (yet).
+
+1. Install the cherry-picked versions of Arviz and PyMC3 (listed above).
+1. Download Bicyclus' source code:
+   ```bash
+   $ git clone https://github.com/Nuclear-Verification-and-Disarmament/bicyclus.git
+   ```
+1. Install Bicyclus using `pip`:
+   ```bash
+   $ cd bicyclus
+   $ pip3 install .
+   ```
+   If you only want to install for the current user, add pip's `--user` flag.
 
 ### Tutorial
 At the moment, Bicyclus can be used through a driver script that has to be
