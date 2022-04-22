@@ -1,2 +1,2 @@
-import blackbox
-import likelihood
+from . import blackbox
+from . import likelihood

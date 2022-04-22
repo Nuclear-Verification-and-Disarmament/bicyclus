@@ -5,6 +5,16 @@ Specifically, it is an interface written in Python3 that connects
 [PyMC](https://docs.pymc.io/en/v3/) (formerly PyMC3), a Python package for
 Bayesian statistics using Markov chain Monte Carlo algortihms.
 
+<blockquote>
+Bicyclus, Bicyclus, Bicyclus
+I want to use my Bicyclus
+I want to use Cyclus
+I want to infer with Cyclus
+I want to infer what I like.
+
+_Freddie Mercury (somewhen, somewhere, probably)_
+</blockquote>
+
 ## Features
 - Run inference processes on nuclear fuel cycles simulated with Cyclus.
 - Store quantities of interest and simulation output that are not part of the
