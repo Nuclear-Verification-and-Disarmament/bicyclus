@@ -31,13 +31,30 @@ def log_file_path(outpath=None, run='', typ='', ending='log'):
     return outfile
 
 
-def write_to_log_file(outpath=None, run=''):
-    outfile = log_file_path(outpath, run)
-    fh = open(outfile, 'w', buffering=1)
-    print("write_to_log_file(): Writing to program-defined log at {}".format(
-        outfile))
-    sys.stdout = fh
-    sys.stderr = fh
+def write_to_log_file(outpath=None, run='', debug=False):
+    """Open a file stream and dump environment variables to stream.
+
+    Note that the file stream *does not get closed* in this function. This
+    behaviour may be changed in later versions.
+
+    Parameters
+    ----------
+    outpath : str, optional
+        Path to directory where the log-file should get stored. Default is to
+        store in /work/ (if /work/ exists, else the home directory is used).
+    run : str, optional
+        Number or name of the run.
+    debug : bool, optional
+        If False (default), write log to file. If True, print to STDOUT and
+        STDERR.
+    """
+    if not debug:
+        outfile = log_file_path(outpath, run)
+        fh = open(outfile, 'w', buffering=1)
+        print("write_to_log_file(): Writing to program-defined log at {}".format(
+            outfile))
+        sys.stdout = fh
+        sys.stderr = fh
 
     log_init_debug_info()
 
