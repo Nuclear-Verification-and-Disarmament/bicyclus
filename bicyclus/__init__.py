@@ -1,3 +1,3 @@
-import blackbox
-import cyclus_db
-import util
+from . import blackbox
+from . import cyclus_db
+from . import util

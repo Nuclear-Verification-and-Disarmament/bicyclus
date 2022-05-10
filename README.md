@@ -5,6 +5,14 @@ Specifically, it is an interface written in Python3 that connects
 [PyMC](https://docs.pymc.io/en/v3/) (formerly PyMC3), a Python package for
 Bayesian statistics using Markov chain Monte Carlo algortihms.
 
+> Bicyclus, Bicyclus, Bicyclus  
+> I want to use my Bicyclus  
+> I want to use Cyclus  
+> I want to infer with Cyclus  
+> I want to infer what I like.  
+>
+> _Freddie Mercury (somewhen, somewhere, probably)_
+
 ## Features
 - Run inference processes on nuclear fuel cycles simulated with Cyclus.
 - Store quantities of interest and simulation output that are not part of the
@@ -16,10 +24,7 @@ Bayesian statistics using Markov chain Monte Carlo algortihms.
   distributions.
 
 ## How-to
-### Installation and requirements
-Bicyclus cannot *yet* be installed as Python module.
-This will be changed soon.
-
+### Requirements
 Bicyclus has only been tested using cherry-picked versions of `PyMC3` and
 `Arviz`, with certain patches applied.
 Using standard PyMC and Arviz versions may lead to errors or unexpected
@@ -37,16 +42,28 @@ The following table lists the software requirements.
 | [matplotlib](https://matplotlib.org/)| n/a | no specific version |
 | [Cyclus' Python API](https://fuelcycle.org/) | [`b45efc6`](https://github.com/maxschalz/cyclus/tree/b45efc6d988c5d30895b320ded235222ce5a2053) | may become superfluous in future versions |
 
+### Installation
+1. Install the cherry-picked versions of Arviz and PyMC3 (listed above):
+   ```bash
+   $ git clone https://git.rwth-aachen.de/lewin/pymc3.git
+   $ cd pymc3
+   $ git checkout lewin
+   $ pip3 install .
+   $ git clone https://git.rwth-aachen.de/lewin/arviz.git
+   $ cd pymc3
+   $ git checkout lewin
+   $ pip3 install .
+   ```
+2. Install Bicyclus:
+   ```bash
+   $ git clone https://github.com/Nuclear-Verification-and-Disarmament/bicyclus.git
+   $ cd bicyclus
+   $ pip3 install .
+   ```
 
 ### Tutorial
 At the moment, Bicyclus can be used through a driver script that has to be
 written on a case-by-case basis.
-It should be noted that for each invocation of the driver script, the
-`PYTHONPATH` needs to be set like so:
-```
-~/bicyclus/bicyclus $ PYTHONPATH=. python3 your_model_dir/your_model.py
-```
-
 We are working on improving this situation, such that it would require less work
 to put together the driver script, and will make a tutorial available, as well.
 

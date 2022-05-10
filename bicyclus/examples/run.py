@@ -125,8 +125,12 @@ def main():
                    choices=('default', 'metropolis'),
                    help='Which sampling algorithm we should use')
     p.add_argument('--chains', type=int, default=1, help='Number of chains.')
+    p.add_argument("--debug", default=False, action="store_true",
+                   help="If set, print all output to STDOUT instead of storing"
+                        " it in a file. Overrides '--log-path' (if set).")
     args = p.parse_args()
-    log.write_to_log_file(run=args.run, outpath=args.log_path)
+    log.write_to_log_file(run=args.run, outpath=args.log_path,
+                          debug=args.debug)
 
     ssc = SimpleSampleCyclus("sampling0.json",
                              csk={

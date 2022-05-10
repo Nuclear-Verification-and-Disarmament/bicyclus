@@ -8,7 +8,7 @@ import tempfile
 import cyclus.simstate as cycsim
 import cyclus.memback as cycmb
 
-from util import log
+from ..util import log
 
 
 class CyclusCliModel:
@@ -83,6 +83,11 @@ class CyclusCliModel:
 # For parallelizing, we will have to create several identical copies.
 class CyclusModel:
     def __init__(self, filename, cyclus_simstate_kwargs={}):
+        msg = ("This class will probably be deprecated. It was originally "
+               "created to use Cyclus' Python API, however the implementation "
+               "in 'CyclusCliModel' works fine (and runs on multiple cores).")
+        raise PendingDeprecationWarning(msg)
+
         self.model = CyclusModel.load_model(filename)
         self.mut_model = self.model
         self.cyclus_simstate_kwargs = cyclus_simstate_kwargs
