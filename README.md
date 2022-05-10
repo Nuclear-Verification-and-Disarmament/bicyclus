@@ -64,12 +64,6 @@ The following table lists the software requirements.
 ### Tutorial
 At the moment, Bicyclus can be used through a driver script that has to be
 written on a case-by-case basis.
-It should be noted that for each invocation of the driver script, the
-`PYTHONPATH` needs to be set like so:
-```
-~/bicyclus/bicyclus $ PYTHONPATH=. python3 your_model_dir/your_model.py
-```
-
 We are working on improving this situation, such that it would require less work
 to put together the driver script, and will make a tutorial available, as well.
 
