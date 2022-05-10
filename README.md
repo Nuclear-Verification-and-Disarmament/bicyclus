@@ -43,21 +43,23 @@ The following table lists the software requirements.
 | [Cyclus' Python API](https://fuelcycle.org/) | [`b45efc6`](https://github.com/maxschalz/cyclus/tree/b45efc6d988c5d30895b320ded235222ce5a2053) | may become superfluous in future versions |
 
 ### Installation
-~~Bicyclus cannot *yet* be installed as Python module.
-This will be changed soon.~~
-Bicyclus should be installable but no extensive tests have been done (yet).
-
-1. Install the cherry-picked versions of Arviz and PyMC3 (listed above).
-1. Download Bicyclus' source code:
+1. Install the cherry-picked versions of Arviz and PyMC3 (listed above):
+   ```bash
+   $ git clone https://git.rwth-aachen.de/lewin/pymc3.git
+   $ cd pymc3
+   $ git checkout lewin
+   $ pip3 install .
+   $ git clone https://git.rwth-aachen.de/lewin/arviz.git
+   $ cd pymc3
+   $ git checkout lewin
+   $ pip3 install .
+   ```
+2. Install Bicyclus:
    ```bash
    $ git clone https://github.com/Nuclear-Verification-and-Disarmament/bicyclus.git
-   ```
-1. Install Bicyclus using `pip`:
-   ```bash
    $ cd bicyclus
    $ pip3 install .
    ```
-   If you only want to install for the current user, add pip's `--user` flag.
 
 ### Tutorial
 At the moment, Bicyclus can be used through a driver script that has to be
