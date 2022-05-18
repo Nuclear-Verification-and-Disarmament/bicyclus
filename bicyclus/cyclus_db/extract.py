@@ -38,6 +38,15 @@ def multi_agent_concs(fname, sinks):
         Name of the last sqlite file.
     sinks : list of str
         Each entry is the name of a sink present in the Cyclus sqlite file.
+
+    Returns
+    -------
+    all_concentrations : dict
+        Contains the concentrations (normalised to 1) of the sinks as values
+        and the sink names (as defined in `sinks`) as keys.
+    masses : dict
+        Contains the masses of the material in the sinks as values and the
+        sink names (as defined in `sinks`) as keys.
     """
     all_concentrations = {}
     masses = {}
@@ -144,7 +153,7 @@ def extract_transaction_composition(sqlite, agent_name):
     """Get the composition of the last transaction to `agent_name`.
 
     This is *not* a very general function but rather tailor-suited to the
-    Pakistan scenario. `extract_transaction_composition` cannot be used
+    Pakistan scenario. `extract_transaction_concentration` cannot be used
     because the `ExplicitInventory` option is turned off to reduce runtime (by
     two magnitudes --> worth it).
 
@@ -214,11 +223,16 @@ WHERE QualId = :qualid"""
 def extract_isotope_concentrations(sqlite,
                                    agent_name='DepletedUraniumSink',
                                    inventory_name='inventory'):
-    """Select the most recent isotope distribution (normed to 1) for a given
-    agent and inventory.
+    """Select the most recent composition for a given agent and inventory.
 
-    Returns (isotopes, total_mass) tuple, where isotopes is dict of int
-    (isotope id) to fraction, and fractions sum up to 1.
+    The composition is normalised to 1.
+    Returns
+    -------
+    (isotopes, total_mass) : tuple
+        `isotopes` is a dict with the isotope IDs (int, not str) as keys and
+        the corresponding fractions as values. The fractions sum up to 1.
+        `total_mass` is the total mass of the material in the agent's
+        inventory.
     """
     agentidquery = """
 SELECT AgentId

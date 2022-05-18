@@ -1,0 +1,161 @@
+{
+  "simulation": {
+    "archetypes": {
+      "spec": [
+        {
+          "lib": "cycamore",
+          "name": "Enrichment"
+        },
+        {
+          "lib": "cycamore",
+          "name": "Source"
+        },
+        {
+          "lib": "cycamore",
+          "name": "Sink"
+        },
+        {
+          "lib": "agents",
+          "name": "NullRegion"
+        },
+        {
+          "lib": "agents",
+          "name": "NullInst"
+        }
+      ]
+    },
+    "commodity": [
+      {
+        "name": "FeedU",
+        "solution_priority": "1.0"
+      },
+      {
+        "name": "DepletedU",
+        "solution_priority": "1.0"
+      },
+      {
+        "name": "EnrichedU",
+        "solution_priority": "1.0"
+      }
+    ],
+    "control": {
+      "decay": "lazy",
+      "duration": "10",
+      "startmonth": "1",
+      "startyear": "2022",
+      "explicit_inventory": true
+    },
+    "facility": [
+      {
+        "config": {
+          "Source": {
+            "outcommod": "FeedU",
+            "throughput": "1000"
+          }
+        },
+        "name": "UraniumMine"
+      },
+      {
+        "config": {
+          "Enrichment": {
+            "feed_commod": "FeedU",
+            "feed_recipe": "FeedURecipe",
+            "max_feed_inventory": "1000000",
+            "product_commod": "EnrichedU",
+            "tails_commod": "DepletedU"
+          }
+        },
+        "name": "EnrichmentPlant"
+      },
+      {
+        "config": {
+          "Sink": {
+            "in_commods": {
+              "val": [
+                "EnrichedU"
+              ]
+            },
+            "recipe_name": "EnrichedURecipe"
+          }
+        },
+        "name": "EnrichedUSink"
+      },
+      {
+        "config": {
+          "Sink": {
+            "in_commods": {
+              "val": [
+                "DepletedU"
+              ]
+            }
+          }
+        },
+        "name": "DepletedUSink"
+      }
+    ],
+    "recipe": [
+      {
+        "basis": "mass",
+        "name": "FeedURecipe",
+        "nuclide": [
+          {
+            "comp": "0.00711",
+            "id": "92235"
+          },
+          {
+            "comp": "0.99289",
+            "id": "92238"
+          }
+        ]
+      },
+      {
+        "basis": "mass",
+        "name": "EnrichedURecipe",
+        "nuclide": [
+          {
+            "comp": "0.04",
+            "id": "92235"
+          },
+          {
+            "comp": "0.96",
+            "id": "92238"
+          }
+        ]
+      }
+    ],
+    "region": {
+      "config": {
+        "NullRegion": null
+      },
+      "institution": [
+        {
+          "config": {
+            "NullInst": null
+          },
+          "initialfacilitylist": {
+            "entry": [
+              {
+                "number": "1",
+                "prototype": "UraniumMine"
+              },
+              {
+                "number": "1",
+                "prototype": "EnrichmentPlant"
+              },
+              {
+                "number": "1",
+                "prototype": "EnrichedUSink"
+              },
+              {
+                "number": "1",
+                "prototype": "DepletedUSink"
+              }
+            ]
+          },
+          "name": "BicyclusInc"
+        }
+      ],
+      "name": "Bicyclonia"
+    }
+  }
+}

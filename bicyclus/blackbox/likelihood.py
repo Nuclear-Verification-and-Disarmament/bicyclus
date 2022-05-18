@@ -1,3 +1,5 @@
+import traceback
+
 import numpy as np
 import theano.tensor as tt
 import pymc3 as pm
@@ -155,6 +157,7 @@ class CyclusLogLikelihood(tt.Op):
             outputs[0][0] = self.memo[str(params)]
             return
 
+
         try:
             self.cyclus_model.mutate(params)
             self.cyclus_model.simulate()
@@ -162,7 +165,8 @@ class CyclusLogLikelihood(tt.Op):
             loglik = self.likelihood(current)
         except Exception as e:
             msg = (f"Cyclus Model {self.cyclus_model} had error: {e}; "
-                    "returning likelihood = -np.inf")
+                    "returning likelihood = -np.inf\n"
+                    f"Traceback:\n", traceback.format_exc())
             print(msg)
             loglik = -np.inf
 
