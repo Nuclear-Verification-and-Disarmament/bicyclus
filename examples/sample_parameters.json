@@ -1,0 +1,7 @@
+{
+  "feed_assay": {
+    "type": "Uniform",
+    "lower": "0.0065",
+    "upper": "0.01"
+  }
+}
