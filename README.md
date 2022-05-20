@@ -62,10 +62,11 @@ The following table lists the software requirements.
    ```
 
 ### Tutorial
+A minimum working example (MWE) can be found in the [`examples`](/examples)
+directory.
 At the moment, Bicyclus can be used through a driver script that has to be
 written on a case-by-case basis.
-We are working on improving this situation, such that it would require less work
-to put together the driver script, and will make a tutorial available, as well.
+However, the MWE provided should be a good starting point for any new driver script.
 
 ## Legacy code
 Originally, this work was developed as part of a Bachelor's thesis by Lewin
