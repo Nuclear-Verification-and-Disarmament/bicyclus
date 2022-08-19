@@ -3,7 +3,7 @@
 import arviz as az
 import pymc3 as pm
 
-from log import log_print
+from .log import log_print
 
 
 def sampling_parameter_to_pymc(name, value):
