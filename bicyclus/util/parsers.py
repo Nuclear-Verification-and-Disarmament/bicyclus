@@ -3,6 +3,8 @@
 import argparse
 import os
 from abc import ABC, abstractmethod
+from datetime import datetime
+
 
 class BaseParser(ABC):
     def __init__(self, **kwargs):
@@ -33,6 +35,7 @@ class BaseParser(ABC):
         if parsed:
             return self.parser.parse_args()
         return self.parser
+
 
 class SamplingParser(BaseParser):
     """"Parser used in a driver file to start Bicyclus simulations."""
@@ -114,3 +117,26 @@ class SamplingParser(BaseParser):
             "--true-parameters-file", type=str,
             default=os.path.join(default_dir, "true_parameters.json"),
             help="JSON file containing the 'true' model parameters.")
+
+
+class CyclusRunParser(BaseParser):
+    """Parser that can be used to start Cyclus runs."""
+    def __init__(self, description="Start Cyclus run.", **kwargs):
+        super().__init__(**kwargs)
+
+    def add_args(self):
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.parser.add_argument(
+            "--name", default=f"Cyclus run {now}", help="Name of Cyclus run")
+        self.parser.add_argument(
+            "--debug-mode", action="store_true",
+            help="If set, run a Cyclus simulation as subprocess, store input "
+                 "output, and STDOUT and STDERR in respective files.\n"
+                 "Else, dump a JSON Cyclus input file to STDOUT (default).")
+        self.parser.add_argument(
+            "--infile", type=str, default="input.json",
+            help="Name of the Cyclus input file (must be .py, .json or .xml)")
+        self.parser.add_argument(
+            "--outfile", type=str, default="",
+            help="Name of the Cyclus output file, only works in conjunction "
+                 "with --debug-mode.")
