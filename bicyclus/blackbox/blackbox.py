@@ -4,10 +4,6 @@ import os
 import subprocess
 import tempfile
 
-# Both cyclus imports can be removed if the CyclusModel class gets removed.
-import cyclus.simstate as cycsim
-import cyclus.memback as cycmb
-
 from ..util import log
 
 
@@ -39,7 +35,7 @@ class CyclusCliModel:
                                tempfile.mktemp() + '.sqlite')
 
         json.dump(self.mut_model, tmpfile)
-        tmpfile.flush()  # buffering -1, my ass
+        tmpfile.flush()
         tmpfile.close()
 
         cyclus_args.update({'-i': tmpfile.name, '-o': outfile})
@@ -79,82 +75,9 @@ class CyclusCliModel:
         return self.result0
 
 
-# Note: This model only works on a single core (chains=1 or cores=1 in PyMC).
-# For parallelizing, we will have to create several identical copies.
+# This class is deprecated
 class CyclusModel:
     def __init__(self, filename, cyclus_simstate_kwargs={}):
-        msg = ("This class will probably be deprecated. It was originally "
-               "created to use Cyclus' Python API, however the implementation "
-               "in 'CyclusCliModel' works fine (and runs on multiple cores).")
-        raise PendingDeprecationWarning(msg)
-
-        self.model = CyclusModel.load_model(filename)
-        self.mut_model = self.model
-        self.cyclus_simstate_kwargs = cyclus_simstate_kwargs
-        self.cyclus_output_path = cyclus_simstate_kwargs.get(
-            'output_path', None)
-        self.last_result = None
-
-    def load_model(filename):
-        with open(filename, 'r') as f:
-            model = json.load(f)
-            return model
-
-    def mutate(self, params=None):
-        """Override this to update the internal `mut_model` used for the
-        simulation. `params` is a parameter vector sampled by PyMC."""
-        self.mut_model = copy.deepcopy(self.model)
-        # do mutation in your overridden method.
-
-    def simulate(self):
-        """Runs simulation with current model, and returns a cyclus MemBack
-        (and updates the internal result)."""
-        # Remove previous SQLite/HDF5 file.
-        try:
-            # possible problem: too many open file descriptors when using SQLite!
-            # Use HDF5 to not overflow FDs.
-            if self.cyclus_output_path:
-                os.remove(self.cyclus_output_path)
-        except OSError:
-            pass
-
-        js = json.dumps(self.mut_model)
-        memback = cycmb.MemBack()
-        simst = cycsim.SimState(input_file=js,
-                                input_format="json",
-                                memory_backend=memback,
-                                **self.cyclus_simstate_kwargs)
-        simst.load()
-        simst.run()
-
-        if self.last_result is not None:
-            self.last_result.close()
-        self.last_result = memback
-        return memback
-
-    def result(self):
-        """Override this method to extract a RV vector (result vector)
-        from the self.result memback database. The resulting vector
-        is the foundation for PyMC sampling, and will be compared to the
-        initial results obtained within `run_groundtruth()`, and are
-        the input to the selected likelihood function class (module
-        `likelihood`).
-
-        The MemBack database can be queried like this:
-            >>> result.query("Recipes", [("Recipe", "==", "natu")])
-                                              SimId Recipe  QualId
-            0  45999ff7-0cc4-4a16-bb93-acf6bdf40ba5   natu       1
-
-        """
-        return None
-
-    def run_groundtruth(self):
-        """Run a simulation with current parameters, and store the result
-        vector returned by `self.result()` as "ground truth", to which later
-        simulations will be compared to.
-        """
-        self.simulate()
-        self.result0 = self.result()
-
-    def get_groundtruth_current_result(self):
-        return (self.result0, self.result())
+        msg = ("This class is deprecated. Please use 'CyclusCliModel', which "
+               "has the added benefit of running on multiple cores.")
+        raise DeprecationWarning(msg)
