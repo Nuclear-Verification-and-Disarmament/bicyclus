@@ -40,7 +40,6 @@ The following table lists the software requirements.
 | [SciPy](https://docs.scipy.org/doc/scipy/index.html)| n/a | no specific version |
 | [Pandas](https://pandas.pydata.org/)| n/a | no specific version |
 | [matplotlib](https://matplotlib.org/)| n/a | no specific version |
-| [Cyclus' Python API](https://fuelcycle.org/) | [`b45efc6`](https://github.com/maxschalz/cyclus/tree/b45efc6d988c5d30895b320ded235222ce5a2053) | may become superfluous in future versions |
 
 ### Installation
 1. Install the cherry-picked versions of Arviz and PyMC3 (listed above):
@@ -50,7 +49,7 @@ The following table lists the software requirements.
    $ git checkout lewin
    $ pip3 install .
    $ git clone https://git.rwth-aachen.de/lewin/arviz.git
-   $ cd pymc3
+   $ cd arviz
    $ git checkout lewin
    $ pip3 install .
    ```
@@ -80,5 +79,5 @@ and reconstruction scenarios.
 ## Pitfalls
 - Depending on the runtime of one Cyclus run, `subprocess`'s timeout value has
   to be adapted.
-  It is defined in `bicyclus/blackbox/blackbox.py:L51`
+  It is defined in `bicyclus/blackbox/blackbox.py`
   (`CyclusCliModel.simulate`) and is currently set to 300 seconds (as of 2022/04/14).
