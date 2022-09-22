@@ -79,8 +79,8 @@ class SamplingParser(BaseParser):
         sampling_group = self.parser.add_argument_group("Sampling parameters")
         sampling_group.add_argument(
             "--algorithm", default="default",
-            help="PyMC3 sampling algorithm to be used, e.g., 'Slice' or "
-                 "'Metropolis'. See https://docs.pymc.io/en/v3/api/inference.html?highlight=step#step-methods "
+            help="PyMC sampling algorithm to be used, e.g., 'Slice' or "
+                 "'Metropolis'. See https://www.pymc.io/projects/docs/en/stable/api/samplers.html"
                  "for a list of available samplers.")
         sampling_group.add_argument(
             "--chains", type=int, default=1, help="Number of chains")

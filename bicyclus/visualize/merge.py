@@ -1,4 +1,4 @@
-'''Merge PyMC3 traces stored as CDF files and plot traces.'''
+'''Merge PyMC traces stored as CDF files and plot traces.'''
 
 import argparse
 import getpass
@@ -11,7 +11,6 @@ import sys
 import arviz as az
 import matplotlib.pyplot as plt
 import numpy as np
-import pymc3 as pm
 import seaborn as sb
 
 from bicyclus.util import log

@@ -1,28 +1,28 @@
 """A collection of utility functions."""
 
 import arviz as az
-import pymc3 as pm
+import pymc as pm
 
 from .log import log_print
 
 
 def sampling_parameter_to_pymc(name, value):
-    """Parse a sampling parameter to a PyMC3 distribution.
+    """Parse a sampling parameter to a PyMC distribution.
 
     Parameters
     ----------
     name : str
         Name of the random variable.
     value : dict
-        Must contain the 'type' key, which has the name of a PyMC3 distribution
+        Must contain the 'type' key, which has the name of a PyMC distribution
         as value. The list of available distributions can be found on, e.g.,
-        https://docs.pymc.io/en/v3/api/distributions.html. Note that PyMC
-        capitalises their distribution names.
+        https://www.pymc.io/projects/docs/en/latest/api/distributions.html
+        Note that PyMC capitalises their distribution names.
         All other kwargs are the distribution parameters. See example below.
 
     Returns
     -------
-    pymc3.Distribution
+    pymc.Distribution
 
     Example
     -------
@@ -37,7 +37,7 @@ def sampling_parameter_to_pymc(name, value):
     except KeyError:
         msg = ("bicyclus.util.sampling_parameter_to_pymc: "
                "The 'value' dict must contain the 'type' key, which has the "
-               "name of a PyMC3 distribution as value.")
+               "name of a PyMC distribution as value.")
         raise KeyError(msg)
 
     try:
