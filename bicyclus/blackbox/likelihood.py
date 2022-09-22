@@ -1,3 +1,4 @@
+import math
 import traceback
 
 import numpy as np
@@ -22,12 +23,17 @@ class NormalLikelihood(LikelihoodFunction):
         self.sigmas = sigmas
 
     def log_likelihood(self, X):
+        def normal_pdf(x, mu=0, sigma=1):
+            """Normal distribution with parameters mu, sigma evaluated at x."""
+            return (math.exp(-(x-mu)**2 / (2 * sigma**2))
+                    / (2 * math.pi)**0.5 / sigma)
+
         assert len(X) == len(self.mus)
-        nd = pm.Normal.dist
 
         logsum = sum(
-            nd(self.mus[i], self.sigmas[i]).logp(X[i]).eval()
+            math.log(normal_pdf(X[i], mu=self.mus[i], sigma=self.sigmas[i]))
             for i in range(0, len(X)))
+
         return logsum
 
 
@@ -39,12 +45,16 @@ class UniformLikelihood(LikelihoodFunction):
         self.intervals = intervals
 
     def log_likelihood(self, X):
-        assert len(X) == len(self.intervals)
-        nd = pm.Uniform.dist
+        def uniform_pdf(x, lower=0, upper=1):
+            assert lower < upper
+            rval = 1 / (upper-lower) if (x >= lower) and (x <= upper) else 0
+            return rval
 
+        assert len(X) == len(self.intervals)
         logsum = sum(
-            nd(lower=self.intervals[i][0], upper=self.intervals[i][1]).logp(
-                X[i]).eval() for i in range(0, len(X)))
+            math.log(uniform_pdf(X[i], lower=self.intervals[i][0],
+                     upper=self.intervals[i][1]))
+            for i in range(0, len(X)))
 
         return logsum
 
