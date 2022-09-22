@@ -1,3 +1,3 @@
-from .blackbox import CyclusCliModel, CyclusModel
+from .blackbox import CyclusCliModel
 from .likelihood import (CyclusLogLikelihood, LikelihoodFunction,
     LogLikelihoodGrad)
