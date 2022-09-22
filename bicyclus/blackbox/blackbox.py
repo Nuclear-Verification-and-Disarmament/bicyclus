@@ -73,11 +73,3 @@ class CyclusCliModel:
         self.simulate()
         self.result0 = self.result()
         return self.result0
-
-
-# This class is deprecated
-class CyclusModel:
-    def __init__(self, filename, cyclus_simstate_kwargs={}):
-        msg = ("This class is deprecated. Please use 'CyclusCliModel', which "
-               "has the added benefit of running on multiple cores.")
-        raise DeprecationWarning(msg)
