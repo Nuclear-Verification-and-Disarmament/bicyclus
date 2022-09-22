@@ -4,6 +4,7 @@ Please note that these are currently written for usage on RWTH Aachen's
 SLURM-based high-performance compute cluster. SLURM environment variables may
 be different or non-existent on other HPCs or PCs.
 """
+
 from datetime import datetime
 
 import random

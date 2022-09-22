@@ -1,8 +1,7 @@
 import traceback
 
 import numpy as np
-import theano.tensor as tt
-import pymc3 as pm
+import aesara.tensor as at
 
 
 class LikelihoodFunction:
@@ -104,14 +103,14 @@ def simplegrad(func,
     return grad
 
 
-class CyclusLogLikelihood(tt.Op):
-    """Calculate the likelihood of the simulation result using a Theano Tensor.
+class CyclusLogLikelihood(at.Op):
+    """Calculate the likelihood of the simulation result using a Aesara Tensor.
 
-    See https://docs.pymc.io/notebooks/blackbox_external_likelihood.html
+    See https://www.pymc.io/projects/examples/en/latest/case_studies/blackbox_external_likelihood_numpy.html#blackbox_external_likelihood_numpy
     """
 
-    itypes = [tt.dvector]
-    otypes = [tt.dscalar]
+    itypes = [at.dvector]
+    otypes = [at.dscalar]
 
     def __init__(self, likelihood_callable, cyclus_model, maxiter=5,
                  memoize=False):
@@ -180,10 +179,10 @@ class CyclusLogLikelihood(tt.Op):
         return [g[0] * self.loggrad(theta)]
 
 
-class LogLikelihoodGrad(tt.Op):
+class LogLikelihoodGrad(at.Op):
     """Gradient Op for a nuclear fuel cycle model."""
-    itypes = [tt.dvector]
-    otypes = [tt.dvector]
+    itypes = [at.dvector]
+    otypes = [at.dvector]
 
     def __init__(self, loglike, cyclus_model, maxiter):
         self.loglike = loglike

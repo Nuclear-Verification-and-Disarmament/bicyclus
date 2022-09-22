@@ -31,17 +31,24 @@ Using standard PyMC and Arviz versions may lead to errors or unexpected
 behaviour and is therefore *not* recommended.
 The following table lists the software requirements.
 
+__Update__: This version is currently being tested using Python 3.10.6, PyMC
+(as opposed to PyMC3) version 4.2.0. and Arviz 0.12.1.
+PyMC and Arviz have been installed using conda and the conda-forge channel.
+
 | Name | Version | Notes |
 |:-----|---:|:---|
-| [Arviz](https://arviz-devs.github.io/arviz/index.html) | [`e3afed56`](https://git.rwth-aachen.de/lewin/arviz/-/tree/lewin) | cherry-picked version with custom patches |
-| [PyMC3](https://docs.pymc.io/en/v3/) | [`9000bf86`](https://git.rwth-aachen.de/lewin/pymc3/-/tree/lewin) | cherry-picked version with custom patches |
-| [Theano](https://github.com/Theano/Theano) | n/a | included in PyMC3 installation |
+| [PyMC](https://www.pymc.io/welcome.html) | `4.2.0` | Currently being tested |
+| [Aesara](https://aesara.readthedocs.io/en/latest/) | `2.8.2` | Currently being tested, included in PyMC |
+| [Arviz](https://python.arviz.org/en/latest/index.html) | `0.12.1` | Currently being tested |
 | [NumPy](https://numpy.org/doc/stable/index.html) | n/a | no specific version |
 | [SciPy](https://docs.scipy.org/doc/scipy/index.html)| n/a | no specific version |
 | [Pandas](https://pandas.pydata.org/)| n/a | no specific version |
 | [matplotlib](https://matplotlib.org/)| n/a | no specific version |
+| [seaborn](https://seaborn.pydata.org/) | | |
 
 ### Installation
+__Please note__: Assuming the tests with the latest PyMC version work, then
+step can be skipped.
 1. Install the cherry-picked versions of Arviz and PyMC3 (listed above):
    ```bash
    $ git clone https://git.rwth-aachen.de/lewin/pymc3.git
