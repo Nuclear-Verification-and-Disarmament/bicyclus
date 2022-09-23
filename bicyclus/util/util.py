@@ -1,9 +1,11 @@
 """A collection of utility functions."""
 
+import os
+
 import arviz as az
 import pymc as pm
 
-from .log import log_print
+from .log import log_print, task_identifier
 
 
 def sampling_parameter_to_pymc(name, value):
@@ -50,6 +52,36 @@ def sampling_parameter_to_pymc(name, value):
 
     return pymc_distribution
 
+
+def samples_output_path(i, name="", dir_=None):
+    """Generate the path and directories where the .cdf output is stored.
+
+    Parameters
+    ----------
+    i : int
+        Index of the run.
+
+    name : str, optional
+        Name of the reconstruction run.
+
+    dir_ : str, optional
+        Path where the .cdf file are stored. If None or '', then '$HOME/data'
+        is used.
+
+    Returns
+    -------
+    str
+        Filename and path where output file is stored.
+    """
+    task_id = task_identifier()
+    if dir_ is None or dir_ == "":
+        dir_ = os.path.join(os.environ.get("HOME", None), "data")
+    os.makedirs(dir_, exist_ok=True)
+
+    return os.path.join(
+        dir_, "cyclus_trace_{}_{}_{:04d}.cdf".format(name, task_id, i))
+
+
 def save_trace(args, trace, i=0):
     """Save a trace as .cdf file.
 
@@ -62,13 +94,15 @@ def save_trace(args, trace, i=0):
 
     trace : pymc3 MultiTrace object
         The trace to be saved.
-    i : int
+
+    i : int, optional
         Index
     """
-    output_path = samples_output_path(i, args.run, default=args.output_path)
+    inference_data = pm.to_inference_data(trace)
+    output_path = samples_output_path(i, args.run, dir_=args.output_path)
+
     log_print(f"Saving trace #{i} ({trace}) to file {output_path}")
     log_print(trace)
-    log_print(az.summary(az.from_pymc3(trace)))
-    location = az.from_pymc3(trace,
-                             density_dist_obs=False).to_netcdf(output_path)
+    log_print(az.summary(inference_data))
+    location = inference_data.to_netcdf(output_path)
     log_print(f"Successfully saved trace #{i} to {location}")

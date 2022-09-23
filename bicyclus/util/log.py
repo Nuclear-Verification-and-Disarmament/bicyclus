@@ -11,7 +11,6 @@ import random
 import string
 import sys
 import os
-from os import path
 
 
 def task_identifier():
@@ -26,7 +25,7 @@ def log_file_path(outpath=None, run='', typ='', ending='log'):
     if outpath is None:
         outpath = os.environ.get('WORK', os.environ.get('HOME'))
     os.makedirs(outpath, exist_ok=True)
-    outfile = path.join(
+    outfile = os.path.join(
         outpath, 'sampling_log_{}_{}_{}.{}'.format(run, typ, task_identifier(),
                                                    ending))
     return outfile
