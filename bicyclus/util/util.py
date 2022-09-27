@@ -35,7 +35,6 @@ def sampling_parameter_to_pymc(name, value):
     """
     try:
         distribution = value["type"]
-        del value["type"]
     except KeyError:
         msg = ("bicyclus.util.sampling_parameter_to_pymc: "
                "The 'value' dict must contain the 'type' key, which has the "
@@ -43,8 +42,9 @@ def sampling_parameter_to_pymc(name, value):
         raise KeyError(msg)
 
     try:
-        pymc_distribution = pm.distributions.__dict__[distribution](name,
-                                                                    **value)
+        pymc_distribution = pm.distributions.__dict__[distribution](
+            name=name, **{k: v for k, v in value.items() if k != "type"}
+        )
     except TypeError:
         msg = ("bicyclus.util.sampling_parameter_to_pymc: "
                "Invalid parameter name in 'value' keyword.")
