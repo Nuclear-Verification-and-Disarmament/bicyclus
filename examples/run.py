@@ -155,6 +155,28 @@ class IsotopeLikelihood(bicyclus.blackbox.LikelihoodFunction):
         return np.array(logllk)
 
 
+def generate_start_value(sample_parameters, n=1):
+    """Generate random start values.
+
+    Ensure that the random generator has been deterministically seeded to
+    guarantee reproducibility of the results.
+    """
+    def genstart():
+        d = {}
+        for param_name, params in sample_parameters.items():
+            dist_name = params["type"]
+            pymc_distribution = pm.__dict__[dist_name]
+            d[param_name] = pm.draw(pymc_distribution.dist(
+                **{k: v for k, v in params.items() if k != "type"}
+            ))
+
+        return d
+
+    if n == 1:
+        return genstart()
+    return [genstart() for i in range(0, n)]
+
+
 def model(args):
     """Set up the model, priors, etc."""
     # Read prior distributions and groundtruths from files.
@@ -197,7 +219,7 @@ def model(args):
 
         # If you want reproducibility, you can set a seed and generate the
         # initial values, as well (not done in this example).
-        initvals = None
+        initvals = generate_start_value(sample_parameters, args.chains)
 
     return pymc_model, initvals
 
@@ -249,6 +271,11 @@ def sample(args, pymc_model, initvals=None):
         # Use pm.iter_sample. We found that this algorithm is much slower for
         # unknown reasons.
         else:
+            msg = (
+                "Currently, using pm.iter_sample is not possible. See "
+                "https://github.com/Nuclear-Verification-and-Disarmament/bicyclus/issues/14.")
+            raise NotImplementedError(msg)
+
             bicyclus.util.log_print(
                 f"Starting to sample iteratively (iter_sample: "
                 f"{args.iter_sample}), initial parameters: {initvals}")
@@ -260,7 +287,7 @@ def sample(args, pymc_model, initvals=None):
             sampler = pm.iter_sample(
                 args.samples,
                 algorithm,
-                start=initvals[0] if type(initvals) is list else initvals,
+                start=initvals,#initvals[0] if type(initvals) is list else initvals,
                 tune=args.tuning_samples)
             sample_ix = 0
             saved_traces = 0
