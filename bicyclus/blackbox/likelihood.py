@@ -37,28 +37,6 @@ class NormalLikelihood(LikelihoodFunction):
         return logsum
 
 
-class UniformLikelihood(LikelihoodFunction):
-    """This class probably doesn't make much sense, as the log likelihood
-    becomes -Inf if a sample parameter is outside the support.
-    """
-    def __init__(self, intervals):
-        self.intervals = intervals
-
-    def log_likelihood(self, X):
-        def uniform_pdf(x, lower=0, upper=1):
-            assert lower < upper
-            rval = 1 / (upper-lower) if (x >= lower) and (x <= upper) else 0
-            return rval
-
-        assert len(X) == len(self.intervals)
-        logsum = sum(
-            math.log(uniform_pdf(X[i], lower=self.intervals[i][0],
-                     upper=self.intervals[i][1]))
-            for i in range(0, len(X)))
-
-        return logsum
-
-
 def simplegrad(func,
                theta,
                releps=1e-2,
