@@ -8,6 +8,53 @@ import pymc as pm
 from .log import log_print, task_identifier
 
 
+def generate_start_values(sample_parameters, rng, n_chains=1):
+    """Generate random start values.
+
+    Parameters
+    ----------
+    sample_parameters : dict
+        Must have the following form:
+        {
+            "distribution1_name": {
+                "type": "Normal",  # Or any other valid PyMC distribution name
+                "mu": 0,
+                "sigma": 1
+            },
+            "distribution2_name": {
+                "type": "Uniform",
+                "lower": 0,
+                "upper": 1
+            }, ...
+        }
+
+    rng : int, RandomState or Generator
+        Seed for the random number generator. We recommend to define a global
+        numpy.Generator (e.g., using numpy.random.default_rng()) and pass this
+        Generator to the function.
+
+    n_chains : int, optional
+        Number of sampled chains
+
+    Returns
+    -------
+    dict or list of dicts
+    """
+    def genstart():
+        start_values = {}
+        for name, specs in sample_parameters.items():
+            distribution = pm.__dict__[specs["type"]]
+            start_values[name] = pm.draw(distribution.dist(
+                **{k: v for k, v in specs.items() if k != "type"}),
+                random_seed=rng)
+        return start_values
+
+    if n_chains == 1:
+        return genstart()
+
+    return [genstart() for i in range(0, n_chains)]
+
+
 def sampling_parameter_to_pymc(name, value):
     """Parse a sampling parameter to a PyMC distribution.
 

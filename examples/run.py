@@ -15,7 +15,7 @@ import bicyclus.blackbox
 import bicyclus.util
 
 
-RANDOM_SEED = 12345
+RNG = np.random.default_rng(seed=12345)
 
 # Using a namedtuple may be OP here but can improve clarity in more complex
 # scenarios.
@@ -155,28 +155,6 @@ class IsotopeLikelihood(bicyclus.blackbox.LikelihoodFunction):
         return np.array(logllk)
 
 
-def generate_start_value(sample_parameters, n=1):
-    """Generate random start values.
-
-    Ensure that the random generator has been deterministically seeded to
-    guarantee reproducibility of the results.
-    """
-    def genstart():
-        d = {}
-        for param_name, params in sample_parameters.items():
-            dist_name = params["type"]
-            pymc_distribution = pm.__dict__[dist_name]
-            d[param_name] = pm.draw(pymc_distribution.dist(
-                **{k: v for k, v in params.items() if k != "type"}
-            ))
-
-        return d
-
-    if n == 1:
-        return genstart()
-    return [genstart() for i in range(0, n)]
-
-
 def model(args):
     """Set up the model, priors, etc."""
     # Read prior distributions and groundtruths from files.
@@ -217,9 +195,9 @@ def model(args):
             ))
         )
 
-        # If you want reproducibility, you can set a seed and generate the
-        # initial values, as well (not done in this example).
-        initvals = generate_start_value(sample_parameters, args.chains)
+        # Generate the initial values using the RNG to ensure reproducibility.
+        initvals = bicyclus.util.generate_start_values(
+            sample_parameters, RNG, args.chains)
 
     return pymc_model, initvals
 
@@ -265,6 +243,7 @@ def sample(args, pymc_model, initvals=None):
                     return_inferencedata=False,
                     compute_convergence_checks=False,
                     progressbar=False,
+                    random_seed=RNG,
                     trace=trace)
                 bicyclus.util.save_trace(args, trace, i=i)
 
@@ -284,6 +263,8 @@ def sample(args, pymc_model, initvals=None):
                     "WARNING: --chains > 1, but sampling iteratively. This "
                     "will not work -- sampling one chain only.")
 
+            print("\n\n\nWARNING: Reproducibility is not ensured in this "
+                  "pm.iter_sample example.\n\n\n")
             sampler = pm.iter_sample(
                 args.samples,
                 algorithm,
