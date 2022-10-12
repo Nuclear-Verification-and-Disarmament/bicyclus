@@ -43,7 +43,6 @@ class SamplingParser(BaseParser):
         super().__init__(**kwargs)
 
     def add_args(self):
-        user = os.environ["USER"]
         default_dir = os.getcwd()
         default_data_dir = os.path.join(default_dir, "data")
         default_log_dir = os.path.join(default_dir, "job_output")

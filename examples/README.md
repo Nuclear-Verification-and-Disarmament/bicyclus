@@ -35,8 +35,12 @@ We get the following density plot:
 ![Plot of the posterior feed assay probability density](plots/plot_merge_density.png)
 Note how the prior density (uniform on 0.0065 to 0.01) got restricted to a much
 narrower distribution located between approximately 0.0067 to 0.0076.
-As we have not fixed a seed, this distribution might look slightly different
-than yours.
+As we have fixed the seed, you should be able to reproduce this distribution
+exactly [^2].
 
 [^1]: Please note that you may need to install `bicyclus` using the `[plotting]`
   option to ensure that all dependencies are available.
+
+[^2]: Please note that we have not yet been able to test the software on
+  different OS or different machines. We _think_ this does not influence
+  reproducibility but we cannot guarantee it.
