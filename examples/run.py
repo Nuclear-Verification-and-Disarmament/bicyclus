@@ -6,10 +6,10 @@ import os
 from copy import deepcopy
 from collections import namedtuple
 
+import aesara.tensor as at
 import arviz as az
 import numpy as np
-import pymc3 as pm
-import theano.tensor as tt
+import pymc as pm
 
 import bicyclus.blackbox
 import bicyclus.util
@@ -173,7 +173,7 @@ def model(args):
         IsotopeLikelihood(groundtruth, rel_sigma=args.rel_sigma),
         cyclus_model, memoize=True)
 
-    bicyclus.util.log_print('Building PyMC3 model.')
+    bicyclus.util.log_print('Building PyMC model.')
     bicyclus.util.log_print('Sampling variables as follows:',
                   [f'{k} => {v}' for (k, v) in sample_parameters.items()])
     bicyclus.util.log_print('The true parameters are:',
@@ -190,23 +190,23 @@ def model(args):
         # Add the likelihood to the model.
         pm.Potential(
             "observed",
-            loglikelihood_op(tt.as_tensor_variable(
+            loglikelihood_op(at.as_tensor_variable(
                 [pymc_priors[k] for k in sorted(pymc_priors.keys())]
             ))
         )
 
         # If you want reproducibility, you can set a seed and generate the
         # initial values, as well (not done in this example).
-        start = None
+        initvals = None
 
-    return pymc_model, start
+    return pymc_model, initvals
 
 
-def sample(args, pymc_model, start=None):
+def sample(args, pymc_model, initvals=None):
     """Sample the random variables and generate the trace(s)."""
     with pymc_model:
         # Algorithm must be one of the methods defined by PyMC, see
-        # https://docs.pymc.io/en/v3/api/inference.html?highlight=step#step-methods.
+        # https://www.pymc.io/projects/docs/en/stable/api/samplers.html#step-methods
         if args.algorithm == "default":
             algorithm = pm.Slice()
         else:
@@ -231,28 +231,27 @@ def sample(args, pymc_model, start=None):
                 bicyclus.util.log_print(
                         f"sampling iteration {i} at {args.samples} samples "
                         f"per iteration using {args.algorithm}, "
-                        f"initial parameters {start}")
+                        f"initial parameters {initvals}")
                 # Refer to https://discourse.pymc.io/t/blackbox-likelihood-example-doesnt-work/5378
                 trace = pm.sample(
-                    args.samples,
+                    draws=args.samples,
                     tune=args.tuning_samples,
                     step=algorithm,
                     chains=args.chains,
                     cores=args.cores,
-                    start=start,
+                    initvals=initvals,
                     return_inferencedata=False,
                     compute_convergence_checks=False,
+                    progressbar=False,
                     trace=trace)
-                # This is https://github.com/pymc-devs/pymc-examples/issues/48#issue-839287296
-                # See https://arviz-devs.github.io/arviz/api/generated/arviz.from_pymc3.html#arviz-from-pymc3
-                save_trace(args, trace, i=i)
+                bicyclus.util.save_trace(args, trace, i=i)
 
         # Use pm.iter_sample. We found that this algorithm is much slower for
         # unknown reasons.
         else:
             bicyclus.util.log_print(
                 f"Starting to sample iteratively (iter_sample: "
-                f"{args.iter_sample}), initial parameters: {start}")
+                f"{args.iter_sample}), initial parameters: {initvals}")
             if args.chains > 1:
                 bicyclus.util.log_print(
                     "WARNING: --chains > 1, but sampling iteratively. This "
@@ -261,7 +260,7 @@ def sample(args, pymc_model, start=None):
             sampler = pm.iter_sample(
                 args.samples,
                 algorithm,
-                start=start[0] if type(start) is list else start,
+                start=initvals[0] if type(initvals) is list else initvals,
                 tune=args.tuning_samples)
             sample_ix = 0
             saved_traces = 0
@@ -274,29 +273,9 @@ def sample(args, pymc_model, start=None):
                     save_trace(args, trace, i=saved_traces)
                     sample_ix = 0
                     saved_traces += 1
-            save_trace(args, trace, i=saved_traces)
+            bicyclus.util.save_trace(args, trace, i=saved_traces)
 
     bicyclus.util.log_print("Sampling finished!")
-
-
-def save_trace(args, trace, i=0):
-    """Save the trace as .cdf file."""
-    task_id = bicyclus.util.task_identifier()
-
-    if args.output_path is None or args.output_path == '':
-        args.output_path = os.path.join(os.getcwd(), "data")
-    os.makedirs(args.output_path, exist_ok=True)
-
-    output_path = os.path.join(args.output_path,
-                               "cyclus_trace_{}_{}_{:03d}.cdf".format(
-                                   args.run, task_id, i))
-
-    bicyclus.util.log_print(f"Saving trace #{i} to file {output_path}.")
-    bicyclus.util.log_print(trace)
-    bicyclus.util.log_print(az.summary(az.from_pymc3(trace)))
-    location = az.from_pymc3(trace,
-                             density_dist_obs=False).to_netcdf(output_path)
-    bicyclus.util.log_print(f"Successfully saved trace #{i} to {location}")
 
 
 def main():
@@ -307,8 +286,8 @@ def main():
     bicyclus.util.write_to_log_file(run=args.run, outpath=args.log_path,
                                     debug=args.debug)
 
-    pymc_model, start = model(args)
-    sample(args, pymc_model, start)
+    pymc_model, initvals = model(args)
+    sample(args, pymc_model, initvals)
 
 
 if __name__ == "__main__":
