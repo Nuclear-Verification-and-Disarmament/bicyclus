@@ -40,7 +40,7 @@
     ],
     "control": {
       "decay": "lazy",
-      "duration": "10",
+      "duration": "5",
       "startmonth": "1",
       "startyear": "2022",
       "explicit_inventory": true
