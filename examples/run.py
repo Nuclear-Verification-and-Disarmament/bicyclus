@@ -211,7 +211,7 @@ def sample(args, pymc_model, initvals=None):
             algorithm = pm.Slice()
         else:
             try:
-                algorithm = pm.step_methods.__dict__[args.algorithm]
+                algorithm = pm.step_methods.__dict__[args.algorithm]()
             except KeyError:
                 msg = ("--algorithm must be one of the methods defined by "
                        "PyMC, see https://docs.pymc.io/en/v3/api/inference.html?highlight=step#step-methods. "
