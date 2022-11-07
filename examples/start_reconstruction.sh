@@ -8,7 +8,7 @@ python3 run.py \
   --chains 4 \
   --iterations 1 \
   --samples 200 \
-  --tuning-samples 100 \
+  --tune 100 \
   --rel-sigma 0.5 \
   --debug  # Print log to CLI, don't store log in a separate file.
 
@@ -21,6 +21,6 @@ python3 run.py \
 #   --iter-sample 50 \
 #   --iterations 1 \
 #   --samples 200 \
-#   --tuning-samples 100 \
+#   --tune 100 \
 #   --rel-sigma 0.5 \
 #   --debug  # Print log to CLI, don't store log in a separate file.
