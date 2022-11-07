@@ -219,6 +219,10 @@ def sample(args, pymc_model, initvals=None):
                        "'Metropolis' instead of 'metropolis').")
                 raise KeyError(msg)
 
+        # Set number of tuning steps.
+        if args.tuning_samples < 0:
+            args.tuning_samples = args.samples // 10
+
         # Use chunk sampling and the 'standard' PyMC sampling algorithm.
         if args.iter_sample <= 0:
             bicyclus.util.log_print("Starting sampling.")
@@ -231,7 +235,7 @@ def sample(args, pymc_model, initvals=None):
                 # Refer to https://discourse.pymc.io/t/blackbox-likelihood-example-doesnt-work/5378
                 trace = pm.sample(
                     draws=args.samples,
-                    tune=args.tune,
+                    tune=args.tuning_samples,
                     step=algorithm,
                     chains=args.chains,
                     cores=args.cores,
@@ -265,7 +269,7 @@ def sample(args, pymc_model, initvals=None):
                 args.samples,
                 algorithm,
                 start=initvals,#initvals[0] if type(initvals) is list else initvals,
-                tune=args.tune)
+                tune=args.tuning_samples)
             sample_ix = 0
             saved_traces = 0
             # The sampling process starts here.
