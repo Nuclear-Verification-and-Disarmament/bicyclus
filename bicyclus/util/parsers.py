@@ -98,9 +98,7 @@ class SamplingParser(BaseParser):
             "--samples", type=int, default=400,
             help="Number of samples per chain per iteration")
         sampling_group.add_argument(
-            "--tuning-samples", type=int, default=-1,
-            help="Number of tuning samples. If < 0 (default), then it is set "
-                 "to 'number of samples' / 10.")  # This has to be done in the driver script!
+            "--tune", type=int, default=100, help="Number of tuning samples")
 
         # Additional parameters
         additional_group = self.parser.add_argument_group(
