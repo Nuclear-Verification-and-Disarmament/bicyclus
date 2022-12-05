@@ -1,4 +1,8 @@
-""""Predefined parsers to start Bicyclus runs or to analyse its output."""
+""""Predefined parsers to start Bicyclus runs or to analyse its output.
+
+To use the parser, first create an instance of one of the parsers. Then, use
+the `get_args()` method to actually parse the arguments.
+"""
 
 import argparse
 import os
@@ -37,9 +41,58 @@ class BaseParser(ABC):
         return self.parser
 
 
-class SamplingParser(BaseParser):
-    """"Parser used in a driver file to start Bicyclus simulations."""
-    def __init__(self, description="Run Bicyclus simulations.", **kwargs):
+class ForwardSimulationParser(BaseParser):
+    """Parser used in a driver file to start Bicyclus forward sampling runs."""
+    def __init__(self,
+                 description="Run forward simulations using QMC sampling.",
+                 **kwargs):
+        super().__init__(**kwargs)
+
+    def add_args(self):
+        default_dir = os.getcwd()
+        default_data_dir = os.path.join(default_dir, "data")
+        default_log_dir = os.path.join(default_dir, "job_output")
+
+        if not os.path.isdir(default_data_dir):
+            os.mkdir(default_data_dir)
+        if not os.path.isdir(default_log_dir):
+            os.mkdir(default_log_dir)
+
+        # Job parameters
+        job_group = self.parser.add_argument_group("Job parameters")
+        job_group.add_argument(
+            "--debug", default=False, action="store_true",
+            help="If set, print all output to STDOUT instead of storing"
+                 " it in the log file. Overrides '--log-path' (if set).")
+        job_group.add_argument(
+            "--index", type=int, default=0,
+            help="Instance index. Use, e.g., if you run multiple jobs in"
+                 " parallel.")
+        job_group.add_argument(
+            "--log-path", type=str, default=default_log_dir,
+            help="Output path for the job logs and input data.")
+        job_group.add_argument(
+            "--output-path", type=str, default=default_data_dir,
+            help="Output path for the sampled .sqlite files.")
+        job_group.add_argument(
+            "--run", type=str, help="Name of this run.")
+
+        # Sampling parameters
+        sampling_group = self.parser.add_argument_group("Sampling parameters")
+        sampling_group.add_argument(
+            "--n-samples-exponent", type=int,
+            help="Logarithm in base 2 of the number of samples, i.e., number "
+                 "of samples = 2^n_samples_exponent.")
+        sampling_group.add_argument(
+            "--sample-parameters-file",  type=str,
+            default=os.path.join(default_dir, "sample_parameters.json"),
+            help="JSON file containing the sampled prior distributions.")
+
+
+class ReconstructionParser(BaseParser):
+    """Parser used in a driver file to start Bicyclus reconstruction runs."""
+    def __init__(self, description="Run Bicyclus reconstruction runs.",
+                 **kwargs):
         super().__init__(**kwargs)
 
     def add_args(self):
@@ -114,6 +167,15 @@ class SamplingParser(BaseParser):
             "--true-parameters-file", type=str,
             default=os.path.join(default_dir, "true_parameters.json"),
             help="JSON file containing the 'true' model parameters.")
+
+
+class SamplingParser(ReconstructionParser):
+    def __init__(self,
+                 description="PENDING DEPRECATION Run Bicyclus simulations.",
+                 **kwargs):
+        msg = "This parser has been renamed to 'ReconstructionParser'."
+        raise PendingDeprecationWarning(msg)
+        super().__init__(**kwargs)
 
 
 class CyclusRunParser(BaseParser):

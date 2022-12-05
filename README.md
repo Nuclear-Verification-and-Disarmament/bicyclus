@@ -36,6 +36,7 @@ except for Cyclus, which the user must install themself.
 | [Aesara](https://aesara.readthedocs.io/en/latest/) | `2.8.2` | included in PyMC |
 | [Arviz](https://python.arviz.org/en/latest/index.html) | `0.12.1` | |
 | [NumPy](https://numpy.org/doc/stable/index.html) | `1.23.3` | |
+| [Scipy](https://docs.scipy.org/doc/scipy/index.html) | `1.9.1` | |
 | [Pandas](https://pandas.pydata.org/) | `1.5.0` | only for plotting |
 | [matplotlib](https://matplotlib.org/) | `3.6.0` | only for plotting |
 | [seaborn](https://seaborn.pydata.org/) | `0.12.0` | only for plotting |
@@ -60,11 +61,22 @@ You can still run the inference process, but features from
 `bicyclus/visualize` may not be available.
 
 ### Tutorial
+#### Inference mode
 A minimum working example (MWE) can be found in the [`examples`](/examples)
 directory.
 At the moment, Bicyclus can be used through a driver script that has to be
 written on a case-by-case basis.
 However, the MWE provided should be a good starting point for any new driver script.
+
+#### Forward mode
+Bicyclus can be used to perform large-scale forward simulations with Cyclus,
+which can be useful, e.g., to perform sensity analyses.
+This so-called forward mode uses Quasi Monte Carlo sampling (specifically, Sobol
+sequences) to efficiently sample the input parameter space.
+Furthermore, the driver script and file structure used in the inference mode can
+largely be reused here.
+
+An MWE might be provided at a later stage.
 
 ## Legacy code
 Originally, this work was developed as part of a Bachelor's thesis by Lewin
