@@ -284,7 +284,7 @@ def sample(args, pymc_model, initvals=None):
 
 def main():
     """Main entry point of the script."""
-    parser = bicyclus.util.SamplingParser()
+    parser = bicyclus.util.ReconstructionParser()
     args = parser.get_args()
 
     bicyclus.util.write_to_log_file(run=args.run, outpath=args.log_path,
