@@ -13,7 +13,8 @@ from scipy.stats.qmc import Sobol, discrepancy, scale
 
 from bicyclus.util import log
 
-class CyclusCliModel:
+
+class CyclusCliModel(ABC):
     """Base class that can mutate a model and run Cyclus simulations.
 
     This class doesn't use the occasionally brittle python module, but
@@ -25,13 +26,13 @@ class CyclusCliModel:
         self.last_sqlite_file = None
         self.result0 = None  # Groundtruth results for later comparison.
 
+    @abstractmethod
     def mutate(self, params=None):
         """Apply a mutation according to params.
 
         If params is None, a default model should be generated.
         """
-        self.mut_model = copy.deepcopy(self.model)
-        # override to do actual mutation!
+        pass
 
     def simulate(self, cyclus_args={}):
         tmpfile = tempfile.NamedTemporaryFile(delete=False,
@@ -71,9 +72,10 @@ class CyclusCliModel:
         # At this point, result() can extract the desired results from
         # last_sqlite_file.
 
+    @abstractmethod
     def result(self):
         """Extract results from self.last_sqlite_file here."""
-        return None
+        pass
 
     def run_groundtruth(self):
         self.simulate()
