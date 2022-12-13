@@ -139,13 +139,16 @@ def save_trace(args, trace, i=0):
         /bicyclus/util/parsers.py. This functioning may be adapted later to
         become independent of the Bicyclus-argparser.
 
-    trace : pymc3 MultiTrace object
-        The trace to be saved.
+    trace : pm.MultiTrace or az.InferenceData
+        The trace or InferenceData to be saved.
 
     i : int, optional
         Index
     """
-    inference_data = pm.to_inference_data(trace)
+    if isinstance(trace, pm.backends.base.MultiTrace):
+        inference_data = pm.to_inference_data(trace)
+    else:
+        inference_data = trace
     output_path = samples_output_path(i, args.run, dir_=args.output_path)
 
     log_print(f"Saving trace #{i} ({trace}) to file {output_path}")

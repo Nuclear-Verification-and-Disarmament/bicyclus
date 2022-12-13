@@ -228,7 +228,6 @@ def sample(args, pymc_model, initvals=None):
                         f"sampling iteration {i} at {args.samples} samples "
                         f"per iteration using {args.algorithm}, "
                         f"initial parameters {initvals}")
-                # Refer to https://discourse.pymc.io/t/blackbox-likelihood-example-doesnt-work/5378
                 trace = pm.sample(
                     draws=args.samples,
                     tune=args.tune,
@@ -236,7 +235,6 @@ def sample(args, pymc_model, initvals=None):
                     chains=args.chains,
                     cores=args.cores,
                     initvals=initvals,
-                    return_inferencedata=False,
                     compute_convergence_checks=False,
                     progressbar=False,
                     random_seed=RNG,
