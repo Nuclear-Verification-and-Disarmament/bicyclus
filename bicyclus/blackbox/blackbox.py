@@ -127,6 +127,9 @@ class CyclusForwardModel(ABC):
         self.data_output_dir = Path(data_output_dir).absolute()
         self.log_output_dir = Path(log_output_dir).absolute()
         self.output_fnames = output_fnames
+        # If not existent, create data and log directories.
+        for dir_ in (self.data_output_dir, self.log_output_dir):
+            dir_.mkdir(mode=0o760, parents=True, exist_ok=True)
 
         self.n_samples_exponent = n_samples_exponent
         self.parameter_names, self.samples = self.generate_samples()
@@ -151,19 +154,18 @@ class CyclusForwardModel(ABC):
             lower_bounds.append(param["lower"])
             upper_bounds.append(param["upper"])
 
-        samples = scale(
-            sobol_sampler.random_base2(self.n_samples_exponent),
-            lower_bounds, upper_bounds)
-        discrepancy_ = discrepancy(samples)
-        log.log_print(f"Generated {samples.shape[0]} samples for "
-                      f"{samples.shape[1]} parameters with discrepancy "
+        unscaled_samples = sobol_sampler.random_base2(self.n_samples_exponent)
+        scaled_samples = scale(unscaled_samples, lower_bounds, upper_bounds)
+        discrepancy_ = discrepancy(unscaled_samples)
+        log.log_print(f"Generated {scaled_samples.shape[0]} samples for "
+                      f"{scaled_samples.shape[1]} parameters with discrepancy "
                       f"{discrepancy_}.")
         output_fname = (self.log_output_dir
                         / f"parameters_{self.output_fnames}.csv")
-        savetxt(output_fname, samples, header=" ".join(parameter_names))
+        savetxt(output_fname, scaled_samples, header=" ".join(parameter_names))
         log.log_print("Stored samples in:", output_fname)
 
-        return parameter_names, samples
+        return parameter_names, scaled_samples
 
     @abstractmethod
     def generate_input_file(self, sample):
@@ -211,7 +213,7 @@ class CyclusForwardModel(ABC):
                 raise RuntimeError(msg)
 
             parameters.update(const_sim_params)
-            input_file = self.generate_input_file(parameters)
+            input_file = self.generate_input_file(sample=parameters)
 
             tmpfile = tempfile.NamedTemporaryFile(delete=False, mode="w",
                                                   suffix=".json")
@@ -228,7 +230,7 @@ class CyclusForwardModel(ABC):
             if os.path.isfile(outfile):
                 os.unlink(outfile)
 
-            cyclus_argv = ['cyclus', "-i", tmpfile.name, "-o", outfile]
+            cyclus_argv = ["cyclus", "-i", tmpfile.name, "-o", outfile]
             cyclus_argv.extend([j for i in cyclus_args.items() for j in i])
             log.log_print("Running Cyclus:", cyclus_argv)
 
