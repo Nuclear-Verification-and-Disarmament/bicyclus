@@ -1,4 +1,6 @@
 # Bicyclus
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 Bicyclus is a Bayesian Inference module for Cyclus.
 Specifically, it is an interface written in Python3 that connects
 [Cyclus](https://fuelcycle.org/), a nuclear fuel simulator, with
@@ -78,6 +80,13 @@ largely be reused here.
 
 An MWE might be provided at a later stage.
 
+## Pitfalls
+- Depending on the runtime of one Cyclus run, `subprocess`'s timeout value has
+  to be adapted.
+  It is defined in `bicyclus/blackbox/blackbox.py`
+  (`CyclusCliModel.simulate`) and is currently set to 300 seconds (as of
+  September 2022).
+
 ## Legacy code
 Originally, this work was developed as part of a Bachelor's thesis by Lewin
 Bormann.
@@ -87,9 +96,12 @@ commit, please visit the
 That repository also contains two applications of complex nuclear fuel cycles
 and reconstruction scenarios.
 
-## Pitfalls
-- Depending on the runtime of one Cyclus run, `subprocess`'s timeout value has
-  to be adapted.
-  It is defined in `bicyclus/blackbox/blackbox.py`
-  (`CyclusCliModel.simulate`) and is currently set to 300 seconds (as of
-  September 2022).
+## Contributing: Usage of pre-commit hooks
+We follow the [`Black`](https://black.readthedocs.io/en/stable/) code style.
+Run the following command from the root directory to enable use of the
+pre-commit hook.
+This will automatically run `black` when comitting and thus will ensure proper
+formatting of the committed code.
+```bash
+$ git config --local core.hooksPath .githooks/
+```

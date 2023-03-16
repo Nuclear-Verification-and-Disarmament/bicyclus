@@ -6,9 +6,16 @@ import json
 import os
 import re
 
-def extract_from_log(log_fname=None, log_dir=None, job_id=None, out_fname=None,
-                     only_accepted=True, extract_array=True,
-                     log_keywords=["sink_masses", "total_likelihood"]):
+
+def extract_from_log(
+    log_fname=None,
+    log_dir=None,
+    job_id=None,
+    out_fname=None,
+    only_accepted=True,
+    extract_array=True,
+    log_keywords=["sink_masses", "total_likelihood"],
+):
     """Extract simulation details written to log and store in file.
 
     Parameters
@@ -54,15 +61,17 @@ def extract_from_log(log_fname=None, log_dir=None, job_id=None, out_fname=None,
     if job_id is None:
         job_id = re.compile("_(\d+)_\d+\.log").search(log_fname).group(1)
 
-    out_fname = f"extracted_params_{job_id}.json" if out_fname is None \
-                                                  else out_fname
+    out_fname = f"extracted_params_{job_id}.json" if out_fname is None else out_fname
 
     # Perform the extraction.
     data = []
     if extract_array:
         _, _, files = next(os.walk(log_dir))
-        job_files = [os.path.join(log_dir, f) for f in files \
-                     if re.compile(f"_{job_id}_\\d+\\.log").search(f)]
+        job_files = [
+            os.path.join(log_dir, f)
+            for f in files
+            if re.compile(f"_{job_id}_\\d+\\.log").search(f)
+        ]
         for f in job_files:
             data.extend(extract_single_log(f, log_keywords, only_accepted))
     else:
@@ -79,6 +88,7 @@ def extract_from_log(log_fname=None, log_dir=None, job_id=None, out_fname=None,
 
     with open(out_fname, "w") as f:
         json.dump(data, f)
+
 
 def extract_single_log(log_fname, log_keywords, only_accepted):
     """Perform the actual extraction from one log."""
@@ -106,28 +116,34 @@ def extract_single_log(log_fname, log_keywords, only_accepted):
 
     return data
 
+
 def main():
     p = argparse.ArgumentParser(
         description="Store log data in JSON file",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     p.add_argument("--log-fname", type=str, default=None)
     p.add_argument("--log-dir", type=str, default=None)
     p.add_argument("--job-id", type=str, default=None)
     p.add_argument("--out-fname", type=str, default=None)
     p.add_argument("--not-only-accepted", action="store_true", default=None)
     p.add_argument("--not-extract-array", action="store_true")
-    p.add_argument("--log-keywords", type=str,
-                   default="sink_masses,total_likelihood")
+    p.add_argument("--log-keywords", type=str, default="sink_masses,total_likelihood")
     args = p.parse_args()
 
     if args.log_keywords:
         args.log_keywords = args.log_keywords.split(",")
 
-    extract_from_log(log_fname=args.log_fname, log_dir=args.log_dir,
-                     job_id=args.job_id, out_fname=args.out_fname,
-                     only_accepted=not args.not_only_accepted,
-                     extract_array=not args.not_extract_array,
-                     log_keywords=args.log_keywords)
+    extract_from_log(
+        log_fname=args.log_fname,
+        log_dir=args.log_dir,
+        job_id=args.job_id,
+        out_fname=args.out_fname,
+        only_accepted=not args.not_only_accepted,
+        extract_array=not args.not_extract_array,
+        log_keywords=args.log_keywords,
+    )
+
 
 if __name__ == "__main__":
     main()

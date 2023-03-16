@@ -15,6 +15,7 @@ import seaborn as sns
 def gen_df(data):
     """Generate pd.dataframe from data"""
     processed = collections.defaultdict(list)
+
     def iterate_dict(d):
         """Iterate recursively through dict and store entries."""
         for key, val in d.items():
@@ -27,6 +28,7 @@ def gen_df(data):
         iterate_dict(elmt)
 
     return pd.DataFrame(processed)
+
 
 def run(args):
     with open(args.infile, "r") as f:
@@ -41,7 +43,6 @@ def run(args):
         plt.savefig(os.path.join(path, f"hist_{k}.png"))
         plt.close()
 
-
     g = sns.PairGrid(data[args.hists])
     g.map_upper(sns.histplot)
     g.map_lower(sns.kdeplot, fill=True)
@@ -51,15 +52,21 @@ def run(args):
 
     return
 
+
 def main():
-    p = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    p.add_argument("--infile", type=str, default=None,
-                   help=("Path to the .json file containing processed LOG "
-                         "data."))
+    p = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p.add_argument(
-        "--hists", type=str, default="WeapongradeUSink,SeparatedPuSink",
-        help="Comma-separated list of labes that should be histogrammed.")
+        "--infile",
+        type=str,
+        default=None,
+        help=("Path to the .json file containing processed LOG " "data."),
+    )
+    p.add_argument(
+        "--hists",
+        type=str,
+        default="WeapongradeUSink,SeparatedPuSink",
+        help="Comma-separated list of labes that should be histogrammed.",
+    )
     args = p.parse_args()
 
     if args.hists:
@@ -69,5 +76,5 @@ def main():
     return
 
 
-if __name__== "__main__":
+if __name__ == "__main__":
     main()

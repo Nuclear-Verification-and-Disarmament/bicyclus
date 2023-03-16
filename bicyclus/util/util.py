@@ -40,13 +40,15 @@ def generate_start_values(sample_parameters, rng, n_chains=1):
     -------
     dict or list of dicts
     """
+
     def genstart():
         start_values = {}
         for name, specs in sample_parameters.items():
             distribution = pm.__dict__[specs["type"]]
-            start_values[name] = pm.draw(distribution.dist(
-                **{k: v for k, v in specs.items() if k != "type"}),
-                random_seed=rng)
+            start_values[name] = pm.draw(
+                distribution.dist(**{k: v for k, v in specs.items() if k != "type"}),
+                random_seed=rng,
+            )
         return start_values
 
     if n_chains == 1:
@@ -83,9 +85,11 @@ def sampling_parameter_to_pymc(name, value):
     try:
         distribution = value["type"]
     except KeyError:
-        msg = ("bicyclus.util.sampling_parameter_to_pymc: "
-               "The 'value' dict must contain the 'type' key, which has the "
-               "name of a PyMC distribution as value.")
+        msg = (
+            "bicyclus.util.sampling_parameter_to_pymc: "
+            "The 'value' dict must contain the 'type' key, which has the "
+            "name of a PyMC distribution as value."
+        )
         raise KeyError(msg)
 
     try:
@@ -93,8 +97,10 @@ def sampling_parameter_to_pymc(name, value):
             name=name, **{k: v for k, v in value.items() if k != "type"}
         )
     except TypeError:
-        msg = ("bicyclus.util.sampling_parameter_to_pymc: "
-               "Invalid parameter name in 'value' keyword.")
+        msg = (
+            "bicyclus.util.sampling_parameter_to_pymc: "
+            "Invalid parameter name in 'value' keyword."
+        )
         raise TypeError(msg)
 
     return pymc_distribution
@@ -125,8 +131,7 @@ def samples_output_path(i, name="", dir_=None):
         dir_ = os.path.join(os.environ.get("HOME", None), "data")
     os.makedirs(dir_, exist_ok=True)
 
-    return os.path.join(
-        dir_, "cyclus_trace_{}_{}_{:04d}.cdf".format(name, task_id, i))
+    return os.path.join(dir_, "cyclus_trace_{}_{}_{:04d}.cdf".format(name, task_id, i))
 
 
 def save_trace(args, trace, i=0):

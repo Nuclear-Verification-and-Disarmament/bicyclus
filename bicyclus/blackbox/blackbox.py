@@ -21,6 +21,7 @@ class CyclusCliModel(ABC):
     instead shells out cyclus. The advantage is also that we can run multiple
     simulations at once.
     """
+
     def __init__(self):
         self.mutate()
         self.last_sqlite_file = None
@@ -35,38 +36,38 @@ class CyclusCliModel(ABC):
         pass
 
     def simulate(self, cyclus_args={}):
-        tmpfile = tempfile.NamedTemporaryFile(delete=False,
-                                              mode='w',
-                                              suffix='.json')
-        outfile = os.path.join(tempfile.gettempdir(),
-                               tempfile.mktemp() + '.sqlite')
+        tmpfile = tempfile.NamedTemporaryFile(delete=False, mode="w", suffix=".json")
+        outfile = os.path.join(tempfile.gettempdir(), tempfile.mktemp() + ".sqlite")
 
         json.dump(self.mut_model, tmpfile)
         tmpfile.flush()
         tmpfile.close()
 
-        cyclus_args.update({'-i': tmpfile.name, '-o': outfile})
-        cyclus_argv = ['cyclus']
+        cyclus_args.update({"-i": tmpfile.name, "-o": outfile})
+        cyclus_argv = ["cyclus"]
         cyclus_argv.extend([a for l in cyclus_args.items() for a in l])
-        log.log_print('Running cyclus:', cyclus_argv)
-        this_run = subprocess.run(cyclus_argv,
-                                  shell=False,
-                                  timeout=300,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE)
+        log.log_print("Running cyclus:", cyclus_argv)
+        this_run = subprocess.run(
+            cyclus_argv,
+            shell=False,
+            timeout=300,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
         if this_run.returncode != 0:
-            log.log_print('Error calling cyclus. stdout/stderr:',
-                          this_run.stderr, this_run.stdout)
-            raise Exception('Cyclus returned error')
+            log.log_print(
+                "Error calling cyclus. stdout/stderr:", this_run.stderr, this_run.stdout
+            )
+            raise Exception("Cyclus returned error")
         if self.last_sqlite_file is not None:
             try:
                 os.unlink(self.last_sqlite_file)
                 self.last_sqlite_file = None
             except Exception as e:
-                log.log_print('Error unlinking old SQLite output:', e)
+                log.log_print("Error unlinking old SQLite output:", e)
 
         self.last_sqlite_file = outfile
-        log.log_print('Cyclus run finished!')
+        log.log_print("Cyclus run finished!")
         os.unlink(tmpfile.name)
 
         # At this point, result() can extract the desired results from
@@ -82,6 +83,7 @@ class CyclusCliModel(ABC):
         self.result0 = self.result()
         return self.result0
 
+
 class CyclusForwardModel(ABC):
     """Class for measurement-independent sampling and uncertainty analysis.
 
@@ -90,9 +92,16 @@ class CyclusForwardModel(ABC):
     efficiently cover the complete input parameter space, the prior
     distribution used must be 'Uniform'.
     """
-    def __init__(self, input_params_fname, n_samples_exponent, seed,
-                 data_output_dir=".", log_output_dir=".",
-                 output_fnames="bicyclus_forward"):
+
+    def __init__(
+        self,
+        input_params_fname,
+        n_samples_exponent,
+        seed,
+        data_output_dir=".",
+        log_output_dir=".",
+        output_fnames="bicyclus_forward",
+    ):
         """Initialise class.
 
         Parameters
@@ -139,17 +148,21 @@ class CyclusForwardModel(ABC):
         with open(self.input_params_fname, "r") as f:
             parameters = json.load(f)
         parameter_names = list(parameters.keys())
-        log.log_print("Generating samples for the following "
-                      f"{len(parameter_names)} parameters: "
-                      f"{', '.join(parameter_names)}")
+        log.log_print(
+            "Generating samples for the following "
+            f"{len(parameter_names)} parameters: "
+            f"{', '.join(parameter_names)}"
+        )
 
         sobol_sampler = Sobol(d=len(parameter_names), seed=self.rng)
         lower_bounds = []
         upper_bounds = []
         for param in parameters.values():
             if param["type"] != "Uniform":
-                msg = ("At the moment, parameter distributions must be Uniform"
-                       " distributions.")
+                msg = (
+                    "At the moment, parameter distributions must be Uniform"
+                    " distributions."
+                )
                 raise ValueError(msg)
             lower_bounds.append(param["lower"])
             upper_bounds.append(param["upper"])
@@ -157,11 +170,12 @@ class CyclusForwardModel(ABC):
         unscaled_samples = sobol_sampler.random_base2(self.n_samples_exponent)
         scaled_samples = scale(unscaled_samples, lower_bounds, upper_bounds)
         discrepancy_ = discrepancy(unscaled_samples)
-        log.log_print(f"Generated {scaled_samples.shape[0]} samples for "
-                      f"{scaled_samples.shape[1]} parameters with discrepancy "
-                      f"{discrepancy_}.")
-        output_fname = (self.log_output_dir
-                        / f"parameters_{self.output_fnames}.csv")
+        log.log_print(
+            f"Generated {scaled_samples.shape[0]} samples for "
+            f"{scaled_samples.shape[1]} parameters with discrepancy "
+            f"{discrepancy_}."
+        )
+        output_fname = self.log_output_dir / f"parameters_{self.output_fnames}.csv"
         savetxt(output_fname, scaled_samples, header=" ".join(parameter_names))
         log.log_print("Stored samples in:", output_fname)
 
@@ -200,31 +214,33 @@ class CyclusForwardModel(ABC):
         n_samples = 2**self.n_samples_exponent
         width_samples = int(log10(2**self.n_samples_exponent)) + 1
 
-        log.log_print("Starting simulations. Storing Cyclus output files in:"
-                      f"{self.data_output_dir}")
+        log.log_print(
+            "Starting simulations. Storing Cyclus output files in:"
+            f"{self.data_output_dir}"
+        )
 
         for i, sample in enumerate(self.samples):
             log.log_print("Generating input file.")
             parameters = {k: v for k, v in zip(self.parameter_names, sample)}
             if not const_sim_params.keys().isdisjoint(parameters.keys()):
                 intersection = const_sim_params.keys() & parameters.keys()
-                msg = ("Sampled parameters and constant parameters must "
-                       f"differ. Common parameters: {intersection}")
+                msg = (
+                    "Sampled parameters and constant parameters must "
+                    f"differ. Common parameters: {intersection}"
+                )
                 raise RuntimeError(msg)
 
             parameters.update(const_sim_params)
             input_file = self.generate_input_file(sample=parameters)
 
-            tmpfile = tempfile.NamedTemporaryFile(delete=False, mode="w",
-                                                  suffix=".json")
+            tmpfile = tempfile.NamedTemporaryFile(
+                delete=False, mode="w", suffix=".json"
+            )
             json.dump(input_file, tmpfile)
             tmpfile.flush()
             tmpfile.close()
 
-            outfile = (
-                self.data_output_dir /
-                f"cyclus_{self.output_fnames}_{i}.sqlite"
-            )
+            outfile = self.data_output_dir / f"cyclus_{self.output_fnames}_{i}.sqlite"
 
             # Existing files are deleted, else Cyclus would append results.
             if os.path.isfile(outfile):
@@ -234,16 +250,22 @@ class CyclusForwardModel(ABC):
             cyclus_argv.extend([j for i in cyclus_args.items() for j in i])
             log.log_print("Running Cyclus:", cyclus_argv)
 
-            run = subprocess.run(cyclus_argv, shell=False, timeout=300,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
+            run = subprocess.run(
+                cyclus_argv,
+                shell=False,
+                timeout=300,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
             if run.returncode != 0:
-                log.log_print("Error running cyclus. stdout/stderr:",
-                              run.stdout, run.stderr)
+                log.log_print(
+                    "Error running cyclus. stdout/stderr:", run.stdout, run.stderr
+                )
                 raise RuntimeError("Cyclus returned error")
 
             log.log_print(
-                f"Simulation finished. {i + 1:>{width_samples}} / {n_samples}")
+                f"Simulation finished. {i + 1:>{width_samples}} / {n_samples}"
+            )
             os.unlink(tmpfile.name)
 
         log.log_print(f"Finished sampling of {n_samples} samples.")

@@ -14,24 +14,24 @@ import os
 
 
 def task_identifier():
-    return '{}_{}_{:03d}'.format(
-        os.environ.get('SLURM_JOB_NAME', 'local'),
-        os.environ.get('SLURM_ARRAY_JOB_ID',
-                       os.environ.get('SLURM_JOB_ID', '0')),
-        int(os.environ.get('SLURM_ARRAY_TASK_ID', '0')))
+    return "{}_{}_{:03d}".format(
+        os.environ.get("SLURM_JOB_NAME", "local"),
+        os.environ.get("SLURM_ARRAY_JOB_ID", os.environ.get("SLURM_JOB_ID", "0")),
+        int(os.environ.get("SLURM_ARRAY_TASK_ID", "0")),
+    )
 
 
-def log_file_path(outpath=None, run='', typ='', ending='log'):
+def log_file_path(outpath=None, run="", typ="", ending="log"):
     if outpath is None:
-        outpath = os.environ.get('WORK', os.environ.get('HOME'))
+        outpath = os.environ.get("WORK", os.environ.get("HOME"))
     os.makedirs(outpath, exist_ok=True)
     outfile = os.path.join(
-        outpath, 'sampling_log_{}_{}_{}.{}'.format(run, typ, task_identifier(),
-                                                   ending))
+        outpath, "sampling_log_{}_{}_{}.{}".format(run, typ, task_identifier(), ending)
+    )
     return outfile
 
 
-def write_to_log_file(outpath=None, run='', debug=False):
+def write_to_log_file(outpath=None, run="", debug=False):
     """Open a file stream and dump environment variables to stream.
 
     Note that the file stream *does not get closed* in this function. This
@@ -50,9 +50,10 @@ def write_to_log_file(outpath=None, run='', debug=False):
     """
     if not debug:
         outfile = log_file_path(outpath, run)
-        fh = open(outfile, 'w', buffering=1)
-        print("write_to_log_file(): Writing to program-defined log at {}".format(
-            outfile))
+        fh = open(outfile, "w", buffering=1)
+        print(
+            "write_to_log_file(): Writing to program-defined log at {}".format(outfile)
+        )
         sys.stdout = fh
         sys.stderr = fh
 
@@ -60,10 +61,11 @@ def write_to_log_file(outpath=None, run='', debug=False):
 
 
 def log_init_debug_info():
-    print('Environment:')
-    for (k, v) in sorted(os.environ.items(), key=lambda t: t[0]):
-        print(k, '=', v)
+    print("Environment:")
+    for k, v in sorted(os.environ.items(), key=lambda t: t[0]):
+        print(k, "=", v)
+
 
 
 def log_print(*args):
-    print(datetime.now(), '::', *args)
+    print(datetime.now(), "::", *args)
