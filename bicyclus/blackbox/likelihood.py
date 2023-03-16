@@ -25,24 +25,23 @@ class NormalLikelihood(LikelihoodFunction):
     def log_likelihood(self, X):
         def normal_pdf(x, mu=0, sigma=1):
             """Normal distribution with parameters mu, sigma evaluated at x."""
-            return (math.exp(-(x-mu)**2 / (2 * sigma**2))
-                    / (2 * math.pi)**0.5 / sigma)
+            return (
+                math.exp(-((x - mu) ** 2) / (2 * sigma**2))
+                / (2 * math.pi) ** 0.5
+                / sigma
+            )
 
         assert len(X) == len(self.mus)
 
         logsum = sum(
             math.log(normal_pdf(X[i], mu=self.mus[i], sigma=self.sigmas[i]))
-            for i in range(0, len(X)))
+            for i in range(0, len(X))
+        )
 
         return logsum
 
 
-def simplegrad(func,
-               theta,
-               releps=1e-2,
-               reltol=1e-2,
-               scale_eps=1 / 2,
-               maxiter=5):
+def simplegrad(func, theta, releps=1e-2, reltol=1e-2, scale_eps=1 / 2, maxiter=5):
     """Calculate simple numeric gradient of func at theta.
 
     func should take list/array theta as only argument.
@@ -50,7 +49,7 @@ def simplegrad(func,
     grad = np.zeros_like(theta, dtype=np.float)
     upper, lower = np.copy(theta), np.copy(theta)
     totalcount = 0
-    for (i, t) in enumerate(theta):
+    for i, t in enumerate(theta):
         count, flipflop = 0, 0
         lastdiff = 0
         this_eps = releps * t
@@ -59,9 +58,7 @@ def simplegrad(func,
             upper[i] += this_eps / 2
             lower[i] -= this_eps / 2
             diff = (func(upper) - func(lower)) / this_eps
-            print(
-                f'diff = {diff}, eps = {this_eps}, {upper} / {lower}, {lastdiff}'
-            )
+            print(f"diff = {diff}, eps = {this_eps}, {upper} / {lower}, {lastdiff}")
             count += 1
             totalcount += 1
             if count > 5:
@@ -87,7 +84,7 @@ def simplegrad(func,
                 break
 
             this_eps *= scale_eps
-    print(f'Grad: {len(theta)} dimensions took {totalcount} iterations')
+    print(f"Grad: {len(theta)} dimensions took {totalcount} iterations")
     return grad
 
 
@@ -100,8 +97,7 @@ class CyclusLogLikelihood(at.Op):
     itypes = [at.dvector]
     otypes = [at.dscalar]
 
-    def __init__(self, likelihood_callable, cyclus_model, maxiter=5,
-                 memoize=False):
+    def __init__(self, likelihood_callable, cyclus_model, maxiter=5, memoize=False):
         """Create a CylusLogLikelihood object.
 
         Parameters
@@ -120,9 +116,9 @@ class CyclusLogLikelihood(at.Op):
         """
         self.likelihood = likelihood_callable
         self.cyclus_model = cyclus_model
-        self.loggrad = LogLikelihoodGrad(likelihood_callable,
-                                         cyclus_model,
-                                         maxiter=maxiter)
+        self.loggrad = LogLikelihoodGrad(
+            likelihood_callable, cyclus_model, maxiter=maxiter
+        )
         self.memo = {} if memoize else None
 
     def perform(self, node, inputs, outputs):
@@ -136,14 +132,13 @@ class CyclusLogLikelihood(at.Op):
         likelihood is then the calculated probability of each ground truth
         result value with respect to the current value's distribution.
         """
-        (params, ) = inputs
+        (params,) = inputs
 
         # likelihood calculation is deterministic
         if self.memo is not None and str(params) in self.memo:
-            print('(memoized)')
+            print("(memoized)")
             outputs[0][0] = self.memo[str(params)]
             return
-
 
         try:
             self.cyclus_model.mutate(params)
@@ -151,9 +146,12 @@ class CyclusLogLikelihood(at.Op):
             current = self.cyclus_model.result()
             loglik = self.likelihood(current)
         except Exception as e:
-            msg = (f"Cyclus Model {self.cyclus_model} had error: {e}; "
-                    "returning likelihood = -np.inf\n"
-                    f"Traceback:\n", traceback.format_exc())
+            msg = (
+                f"Cyclus Model {self.cyclus_model} had error: {e}; "
+                "returning likelihood = -np.inf\n"
+                f"Traceback:\n",
+                traceback.format_exc(),
+            )
             print(msg)
             loglik = -np.inf
 
@@ -163,12 +161,13 @@ class CyclusLogLikelihood(at.Op):
         outputs[0][0] = np.array(loglik)
 
     def grad(self, inputs, g):
-        (theta, ) = inputs
+        (theta,) = inputs
         return [g[0] * self.loggrad(theta)]
 
 
 class LogLikelihoodGrad(at.Op):
     """Gradient Op for a nuclear fuel cycle model."""
+
     itypes = [at.dvector]
     otypes = [at.dvector]
 
@@ -178,7 +177,7 @@ class LogLikelihoodGrad(at.Op):
         self.maxiter = maxiter
 
     def perform(self, node, inputs, outputs):
-        (theta, ) = inputs
+        (theta,) = inputs
 
         def differentiable(args):
             self.cyclus_model.mutate(args)

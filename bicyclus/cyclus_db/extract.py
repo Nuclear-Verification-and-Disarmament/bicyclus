@@ -17,6 +17,7 @@ def run_with_conn(filename, extract, params={}):
     with sqlite3.connect(filename) as sql:
         return extract(sql, **params)
 
+
 def get_all_agents(sqlite):
     query = """
 SELECT AgentId, Kind, Spec, Prototype
@@ -26,8 +27,9 @@ ORDER BY AgentId ASC"""
 
     out = []
     for row in cursor:
-        out.append('{} {} spec {} proto {}'.format(*row))
-    return '\n'.join(out)
+        out.append("{} {} spec {} proto {}".format(*row))
+    return "\n".join(out)
+
 
 def multi_agent_concs(fname, sinks):
     """Query concentrations and masses of multiple sinks.
@@ -51,12 +53,13 @@ def multi_agent_concs(fname, sinks):
     all_concentrations = {}
     masses = {}
     for sink in sinks:
-        concentrations, mass = run_with_conn(fname,
-                                             extract_isotope_concentrations,
-                                             {'agent_name': sink})
+        concentrations, mass = run_with_conn(
+            fname, extract_isotope_concentrations, {"agent_name": sink}
+        )
         all_concentrations[sink] = concentrations
         masses[sink] = mass
     return all_concentrations, masses
+
 
 def multi_agent_transactions(fname, sinks, mass_sinks=[]):
     """Query concentrations and masses of multiple sinks.
@@ -90,7 +93,8 @@ def multi_agent_transactions(fname, sinks, mass_sinks=[]):
     masses = {}
     for sink in sinks:
         concentrations, mass = run_with_conn(
-            fname, extract_transaction_composition, {"agent_name": sink})
+            fname, extract_transaction_composition, {"agent_name": sink}
+        )
         all_concentrations[sink] = concentrations
         masses[sink] = mass
 
@@ -99,6 +103,7 @@ def multi_agent_transactions(fname, sinks, mass_sinks=[]):
         masses[mass_sink] = mass
 
     return all_concentrations, masses
+
 
 def extract_mass(sqlite, agent_name):
     """Extract the mass at the end of the simulation from sink `agent_name`.
@@ -127,8 +132,10 @@ WHERE Prototype = :agentname"""
     # Cursor will only contain one element *unless* facility has been built
     # multiple times.
     if len(results) != 1:
-        msg = (f"Multiple or zero instances of agent named '{agent_name}' "
-                "present in `AgentEntry`.")
+        msg = (
+            f"Multiple or zero instances of agent named '{agent_name}' "
+            "present in `AgentEntry`."
+        )
         raise ValueError(msg)
     agent_id = results[0][0]
 
@@ -143,11 +150,14 @@ WHERE AgentId = :agentid AND Time = (SELECT MAX(Time)
     cursor = sqlite.execute(mass_query, {"agentid": agent_id})
     results = cursor.fetchall()
     if len(results) != 1:
-        msg = (f"Multiple or zero entries of material of agent named "
-               f"'{agent_name}' stored in `TimeSeriesSinkTotalMats`.")
+        msg = (
+            f"Multiple or zero entries of material of agent named "
+            f"'{agent_name}' stored in `TimeSeriesSinkTotalMats`."
+        )
         raise ValueError(msg)
     mass = results[0][0]
     return mass
+
 
 def extract_transaction_composition(sqlite, agent_name):
     """Get the composition of the last transaction to `agent_name`.
@@ -183,8 +193,10 @@ WHERE Prototype = :agentname"""
     # Cursor will only contain one element *unless* facility has been built
     # multiple times.
     if len(results) != 1:
-        msg = (f"Multiple or zero instances of agent named '{agent_name}' "
-                "present in `AgentEntry`.")
+        msg = (
+            f"Multiple or zero instances of agent named '{agent_name}' "
+            "present in `AgentEntry`."
+        )
         raise ValueError(msg)
     agent_id = results[0][0]
 
@@ -195,8 +207,10 @@ WHERE ReceiverId = :agentid"""
     cursor = sqlite.execute(resource_id_query, {"agentid": agent_id})
     results = cursor.fetchall()
     if len(results) != 1:
-        msg = (f"Multiple or zero transactions to agent named '{agent_name}' "
-                "stored in `Transactions`.")
+        msg = (
+            f"Multiple or zero transactions to agent named '{agent_name}' "
+            "stored in `Transactions`."
+        )
         raise ValueError(msg)
     resource_id = results[0][0]
 
@@ -220,9 +234,10 @@ WHERE QualId = :qualid"""
 
     return composition, quantity
 
-def extract_isotope_concentrations(sqlite,
-                                   agent_name='DepletedUraniumSink',
-                                   inventory_name='inventory'):
+
+def extract_isotope_concentrations(
+    sqlite, agent_name="DepletedUraniumSink", inventory_name="inventory"
+):
     """Select the most recent composition for a given agent and inventory.
 
     The composition is normalised to 1.
@@ -238,7 +253,7 @@ def extract_isotope_concentrations(sqlite,
 SELECT AgentId
 FROM AgentEntry
 WHERE Prototype = :agentname"""
-    cursor = sqlite.execute(agentidquery, {'agentname': agent_name})
+    cursor = sqlite.execute(agentidquery, {"agentname": agent_name})
     agentid = -1
     for row in cursor:
         agentid = int(row[0])
@@ -251,16 +266,13 @@ AND Time = (SELECT MAX(Time)
             FROM ExplicitInventory
             WHERE AgentId = :agentid);
 """
-    cursor = sqlite.execute(isoquery, {
-        'agentid': agentid,
-        'invname': inventory_name
-    })
+    cursor = sqlite.execute(isoquery, {"agentid": agentid, "invname": inventory_name})
 
     isotopes = {}
     for row in cursor:
         isotopes[row[0]] = row[1]
 
     total_mass = sum(v for (k, v) in isotopes.items())
-    for (k, v) in isotopes.items():
+    for k, v in isotopes.items():
         isotopes[k] = v / total_mass
     return isotopes, total_mass
