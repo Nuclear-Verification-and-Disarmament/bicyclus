@@ -49,7 +49,7 @@ Install Bicyclus and *all* dependencies.
 ```bash
 $ git clone https://github.com/Nuclear-Verification-and-Disarmament/bicyclus.git
 $ cd bicyclus
-$ pip3 install .[plotting]
+$ pip3 install ".[plotting]"
 ```
 
 If you do not want to install dependencies needed for plotting, run the
