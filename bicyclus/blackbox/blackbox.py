@@ -35,7 +35,20 @@ class CyclusCliModel(ABC):
         """
         pass
 
-    def simulate(self, cyclus_args={}):
+    def simulate(self, cyclus_args={}, timeout=300):
+        """Run the Cyclus simulation, storing all data on /tmp.
+
+        Parameters
+        ----------
+        cyclus_args : dict
+            Commandline arguments passed to Cyclus. As default, the input and
+            output file names are passed.
+
+        timeout : int
+            Maximum (wallclock) duration of one Cyclus simulation in seconds.
+            If this time is exceeded, the Cyclus simulation is killed and a
+            `TimeoutExpired` exception is raised.
+        """
         tmpfile = tempfile.NamedTemporaryFile(delete=False, mode="w", suffix=".json")
         outfile = os.path.join(tempfile.gettempdir(), tempfile.mktemp() + ".sqlite")
 
@@ -50,7 +63,7 @@ class CyclusCliModel(ABC):
         this_run = subprocess.run(
             cyclus_argv,
             shell=False,
-            timeout=300,
+            timeout=timeout,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
@@ -199,7 +212,7 @@ class CyclusForwardModel(ABC):
         """
         pass
 
-    def run_simulations(self, cyclus_args={}, const_sim_params={}):
+    def run_simulations(self, cyclus_args={}, const_sim_params={}, timeout=300):
         """Run Cyclus simulations using generated set of parameters.
 
         Parameters
@@ -207,9 +220,14 @@ class CyclusForwardModel(ABC):
         cyclus_args : dict, optional
             Commandline args passed to Cyclus.
 
-        const_sim_parms : dict, optional
+        const_sim_params : dict, optional
             Parameters that are not sampled but should be passed to the input
             file generator in addition to the sampled parameters.
+
+        timeout : int
+            Maximum (wallclock) duration of one Cyclus simulation in seconds.
+            If this time is exceeded, the Cyclus simulation is killed and a
+            `TimeoutExpired` exception is raised.
         """
         n_samples = 2**self.n_samples_exponent
         width_samples = int(log10(2**self.n_samples_exponent)) + 1
@@ -253,7 +271,7 @@ class CyclusForwardModel(ABC):
             run = subprocess.run(
                 cyclus_argv,
                 shell=False,
-                timeout=300,
+                timeout=timeout,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
