@@ -5,10 +5,17 @@ import math
 import os
 from collections import namedtuple
 
-import aesara.tensor as at
 import arviz as az
 import numpy as np
 import pymc as pm
+
+# PyMC v5.x uses pytensor, PyMC v4.x uses Aesara.
+if version.parse(pm.__version__).major == 4:
+    from aesara.tensor import as_tensor_variable
+elif version.parse(pm.__version__).major == 5:
+    from pytensor.tensor import as_tensor_variable
+else:
+    raise ImportError("Currently, only PyMC versions 4.x or 5.x are supported.")
 
 import bicyclus.blackbox
 import bicyclus.util
@@ -202,9 +209,7 @@ def model(args):
         pm.Potential(
             "observed",
             loglikelihood_op(
-                at.as_tensor_variable(
-                    [pymc_priors[k] for k in sorted(pymc_priors.keys())]
-                )
+                as_tensor_variable([pymc_priors[k] for k in sorted(pymc_priors.keys())])
             ),
         )
 
