@@ -3,7 +3,6 @@
 import json
 import math
 import os
-from copy import deepcopy
 from collections import namedtuple
 
 import aesara.tensor as at
@@ -31,7 +30,9 @@ class SampleCyclus(bicyclus.blackbox.CyclusCliModel):
         self.current_parameters = None
 
         with open("cyclus_input.json", "r") as f:
-            self.model = json.load(f)
+            # This variable will be mutated during the inference process.
+            # Do not rename it.
+            self.mut_model = json.load(f)
 
         super().__init__()
 
@@ -59,7 +60,6 @@ class SampleCyclus(bicyclus.blackbox.CyclusCliModel):
             bicyclus.util.log_print("Mutating: using parameters", parameters)
 
         # Change the isotopics of the feed uranium.
-        self.mut_model = deepcopy(self.model)
         self.mut_model["simulation"]["recipe"][0]["nuclide"][0].update(
             comp=parameters["feed_assay"]
         )  # U235
