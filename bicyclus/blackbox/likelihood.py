@@ -1,8 +1,19 @@
+"""Classes to implement likelihood functions as Aesara/Pytensor objects."""
+
 import math
-import traceback
+from packaging import version
+from traceback import format_exc
 
 import numpy as np
-import aesara.tensor as at
+from pymc import __version__ as pymc_version
+
+# PyMC v5.x uses pytensor, PyMC v4.x uses Aesara.
+if version.parse(pymc_version).major == 4:
+    from aesara import tensor
+elif version.parse(pymc_version).major == 5:
+    from pytensor import tensor
+else:
+    raise ImportError("Currently, only PyMC versions 4.x or 5.x are supported.")
 
 
 class LikelihoodFunction:
@@ -88,14 +99,14 @@ def simplegrad(func, theta, releps=1e-2, reltol=1e-2, scale_eps=1 / 2, maxiter=5
     return grad
 
 
-class CyclusLogLikelihood(at.Op):
+class CyclusLogLikelihood(tensor.Op):
     """Calculate the likelihood of the simulation result using a Aesara Tensor.
 
     See https://www.pymc.io/projects/examples/en/latest/case_studies/blackbox_external_likelihood_numpy.html#blackbox_external_likelihood_numpy
     """
 
-    itypes = [at.dvector]
-    otypes = [at.dscalar]
+    itypes = [tensor.dvector]
+    otypes = [tensor.dscalar]
 
     def __init__(self, likelihood_callable, cyclus_model, maxiter=5, memoize=False):
         """Create a CylusLogLikelihood object.
@@ -150,7 +161,7 @@ class CyclusLogLikelihood(at.Op):
                 f"Cyclus Model {self.cyclus_model} had error: {e}; "
                 "returning likelihood = -np.inf\n"
                 f"Traceback:\n",
-                traceback.format_exc(),
+                format_exc(),
             )
             print(msg)
             loglik = -np.inf
@@ -165,11 +176,11 @@ class CyclusLogLikelihood(at.Op):
         return [g[0] * self.loggrad(theta)]
 
 
-class LogLikelihoodGrad(at.Op):
+class LogLikelihoodGrad(tensor.Op):
     """Gradient Op for a nuclear fuel cycle model."""
 
-    itypes = [at.dvector]
-    otypes = [at.dvector]
+    itypes = [tensor.dvector]
+    otypes = [tensor.dvector]
 
     def __init__(self, loglike, cyclus_model, maxiter):
         self.loglike = loglike

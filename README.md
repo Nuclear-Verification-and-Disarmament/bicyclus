@@ -4,7 +4,7 @@
 Bicyclus is a Bayesian Inference module for Cyclus.
 Specifically, it is an interface written in Python3 that connects
 [Cyclus](https://fuelcycle.org/), a nuclear fuel simulator, with
-[PyMC](https://docs.pymc.io/en/v3/) (formerly PyMC3), a Python package for
+[PyMC](https://www.pymc.io/) (formerly PyMC3), a Python package for
 Bayesian statistics using Markov chain Monte Carlo algorithms.
 
 > Bicyclus, Bicyclus, Bicyclus  
@@ -34,8 +34,9 @@ except for Cyclus, which the user must install themself.
 | Name | Tested with version | Notes |
 |:-----|---:|:---|
 | [Python](https://www.python.org/) | `3.10.6` | |
-| [PyMC](https://www.pymc.io/welcome.html) | `4.2.0` | |
-| [Aesara](https://aesara.readthedocs.io/en/latest/) | `2.8.2` | included in PyMC |
+| [PyMC](https://www.pymc.io/welcome.html) | `4.2.0` | must be used with PyMC v4.x or larger |
+| [Aesara](https://aesara.readthedocs.io/en/latest/) | `2.8.2` | only for PyMC v4.x |
+| [PyTensor](https://pytensor.readthedocs.io/en/latest/) | | only for PyMC v5.x or larger |
 | [Arviz](https://python.arviz.org/en/latest/index.html) | `0.12.1` | |
 | [NumPy](https://numpy.org/doc/stable/index.html) | `1.23.3` | |
 | [Scipy](https://docs.scipy.org/doc/scipy/index.html) | `1.9.1` | |
