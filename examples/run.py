@@ -4,6 +4,7 @@ import json
 import math
 import os
 from collections import namedtuple
+from packaging import version
 
 import arviz as az
 import numpy as np
